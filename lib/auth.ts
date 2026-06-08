@@ -60,7 +60,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        // In production, look up user in database
         return { id: '1', email: credentials.email };
       },
     }),
