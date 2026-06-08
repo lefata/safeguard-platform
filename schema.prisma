@@ -1,0 +1,740 @@
+// prisma/schema.prisma
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// MULTI-TENANT: TENANTS (SCHOOLS)
+// ============================================================
+
+model Tenant {
+  id                    String    @id @default(cuid())
+  name                  String
+  slug                  String    @unique
+  logo                  String?
+  primaryColor          String    @default("#2563eb")
+  secondaryColor        String    @default("#7c3aed")
+  timezone              String    @default("UTC")
+  locale                String    @default("en-GB")
+  dataRetentionDays     Int       @default(2555)
+  maxUsers              Int       @default(500)
+  maxStudents           Int       @default(2000)
+  subscriptionTier      String    @default("BASIC") // BASIC, PRO, ENTERPRISE
+  subscriptionStatus    String    @default("ACTIVE") // ACTIVE, SUSPENDED, CANCELLED
+  features              Json      @default("{}")
+  safeguardingSettings  Json      @default("{}")
+  notificationSettings  Json      @default("{}")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  users                 User[]
+  students              Student[]
+  departments           Department[]
+  categories            SafeguardingCategory[]
+  behaviorCategories    BehaviorCategory[]
+  interventionTypes     InterventionType[]
+  workflowRules         WorkflowRule[]
+  auditLogs             AuditLog[]
+  notificationTemplates NotificationTemplate[]
+
+  @@map("tenants")
+}
+
+// ============================================================
+// USERS & AUTHENTICATION
+// ============================================================
+
+enum UserRole {
+  SUPER_ADMIN
+  SCHOOL_ADMIN
+  DSL
+  DEPUTY_DSL
+  COUNSELOR
+  PRINCIPAL
+  TEACHER
+  NURSE
+  STUDENT_SUPPORT
+  READ_ONLY_AUDITOR
+  PARENT
+}
+
+model User {
+  id                  String         @id @default(cuid())
+  tenantId            String
+  email               String
+  emailVerified       DateTime?
+  name                String?
+  title               String?
+  role                UserRole       @default(TEACHER)
+  departmentId        String?
+  staffId             String?
+  phone               String?
+  image               String?
+  mfaEnabled          Boolean        @default(false)
+  mfaSecret           String?
+  notificationPrefs   Json           @default("{}")
+  isActive            Boolean        @default(true)
+  lastLoginAt         DateTime?
+  lastLoginIp         String?
+  sessionTimeout      Int            @default(30)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  tenant              Tenant         @relation(fields: [tenantId], references: [id])
+  department          Department?    @relation(fields: [departmentId], references: [id])
+  
+  accounts            Account[]
+  sessions            Session[]
+  
+  createdConcerns     SafeguardingConcern[]     @relation("ConcernCreator")
+  assignedConcerns    SafeguardingConcern[]     @relation("ConcernAssignee")
+  caseNotes           CaseNote[]
+  actions             SafeguardingAction[]
+  wellbeingNotes      WellbeingNote[]
+  behaviorIncidents   BehaviorIncident[]        @relation("IncidentRecorder")
+  interventionPlans   InterventionPlan[]        @relation("PlanCreator")
+  notifications       Notification[]
+  notificationPrefs2  NotificationPreference[]
+  auditLogs           AuditLog[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([role])
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  ipAddress    String?
+  userAgent    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  headId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  head      User?    @relation(fields: [headId], references: [id])
+  users     User[]
+  students  Student[]
+
+  @@unique([tenantId, name])
+  @@map("departments")
+}
+
+// ============================================================
+// STUDENT MANAGEMENT
+// ============================================================
+
+model Student {
+  id              String       @id @default(cuid())
+  tenantId        String
+  studentId       String
+  firstName       String
+  lastName        String
+  preferredName   String?
+  dateOfBirth     DateTime
+  gender          String?
+  grade           String
+  homeroom        String?
+  house           String?
+  enrollmentStatus String      @default("ENROLLED") // ENROLLED, WITHDRAWN, GRADUATED
+  photo           String?
+  medicalAlerts   Json         @default("[]")
+  parentContacts  Json         @default("[]")
+  externalIds     Json         @default("{}") // PowerSchool, Google, etc.
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  tenant              Tenant                @relation(fields: [tenantId], references: [id])
+  departmentId        String?
+  department          Department?           @relation(fields: [departmentId], references: [id])
+  
+  safeguardingConcerns SafeguardingConcern[]
+  wellbeingNotes       WellbeingNote[]
+  wellbeingCheckins    WellbeingCheckin[]
+  behaviorIncidents    BehaviorIncident[]
+  interventionPlans    InterventionPlan[]
+  attendanceRecords    AttendanceRecord[]
+  parentMeetings       ParentMeeting[]
+  supportPlans         SupportPlan[]
+  chronologyEntries    ChronologyEntry[]
+
+  @@unique([tenantId, studentId])
+  @@index([tenantId, grade])
+  @@index([tenantId, lastName, firstName])
+  @@map("students")
+}
+
+// ============================================================
+// SAFEGUARDING MODULE
+// ============================================================
+
+model SafeguardingCategory {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  riskLevel   String   @default("MEDIUM")
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  concerns    SafeguardingConcern[]
+
+  @@unique([tenantId, name])
+  @@map("safeguarding_categories")
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum CaseStatus {
+  NEW
+  UNDER_REVIEW
+  INVESTIGATING
+  ESCALATED
+  MONITORING
+  CLOSED
+  ARCHIVED
+}
+
+model SafeguardingConcern {
+  id                String       @id @default(cuid())
+  tenantId          String
+  studentId         String
+  categoryId        String
+  creatorId         String
+  assigneeId        String?
+  title             String
+  description       String
+  riskLevel         RiskLevel    @default(MEDIUM)
+  status            CaseStatus   @default(NEW)
+  dateOfIncident    DateTime     @default(now())
+  locationOfIncident String?
+  immediateActions   String?
+  isAnonymousReport Boolean      @default(false)
+  witnesses         Json         @default("[]")
+  relatedStudentIds Json         @default("[]")
+  attachments       Json         @default("[]")
+  escalationLevel   Int          @default(0)
+  reviewDate        DateTime?
+  closedAt          DateTime?
+  closureNotes      String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  tenant            Tenant                @relation(fields: [tenantId], references: [id])
+  student           Student               @relation(fields: [studentId], references: [id])
+  category          SafeguardingCategory  @relation(fields: [categoryId], references: [id])
+  creator           User                  @relation("ConcernCreator", fields: [creatorId], references: [id])
+  assignee          User?                 @relation("ConcernAssignee", fields: [assigneeId], references: [id])
+  
+  caseNotes         CaseNote[]
+  actions           SafeguardingAction[]
+  timeline          CaseTimelineEntry[]
+  chronologyEntries ChronologyEntry[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, riskLevel])
+  @@index([tenantId, studentId])
+  @@index([tenantId, creatorId])
+  @@map("safeguarding_concerns")
+}
+
+model CaseNote {
+  id          String   @id @default(cuid())
+  concernId   String
+  authorId    String
+  content     String
+  isInternal  Boolean  @default(true)
+  attachments Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  concern     SafeguardingConcern @relation(fields: [concernId], references: [id], onDelete: Cascade)
+  author      User                @relation(fields: [authorId], references: [id])
+
+  @@index([concernId])
+  @@map("case_notes")
+}
+
+model SafeguardingAction {
+  id            String    @id @default(cuid())
+  concernId     String
+  assignedToId  String?
+  completedById String?
+  actionType    String
+  description   String
+  dueDate       DateTime?
+  completedAt   DateTime?
+  status        String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, OVERDUE
+  priority      String    @default("MEDIUM")
+  outcome       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  concern       SafeguardingConcern @relation(fields: [concernId], references: [id], onDelete: Cascade)
+  assignedTo    User?               @relation(fields: [assignedToId], references: [id])
+  completedBy   User?               @relation(fields: [completedById], references: [id])
+
+  @@index([concernId])
+  @@index([assignedToId, status])
+  @@map("safeguarding_actions")
+}
+
+model CaseTimelineEntry {
+  id          String   @id @default(cuid())
+  concernId   String
+  actorId     String
+  action      String
+  description String?
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  concern     SafeguardingConcern @relation(fields: [concernId], references: [id], onDelete: Cascade)
+  actor       User                @relation(fields: [actorId], references: [id])
+
+  @@index([concernId, createdAt])
+  @@map("case_timeline_entries")
+}
+
+// ============================================================
+// WELLBEING MODULE
+// ============================================================
+
+model WellbeingNote {
+  id          String   @id @default(cuid())
+  tenantId    String
+  studentId   String
+  authorId    String
+  noteType    String   @default("GENERAL") // GENERAL, CHECKIN, INTERVENTION, ASSESSMENT
+  content     String
+  mood        String?  // GREAT, GOOD, OKAY, LOW, CRITICAL
+  energyLevel Int?
+  isPrivate   Boolean  @default(false)
+  attachments Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  student     Student  @relation(fields: [studentId], references: [id])
+  author      User     @relation(fields: [authorId], references: [id])
+
+  chronologyEntries ChronologyEntry[]
+
+  @@index([tenantId, studentId, createdAt])
+  @@map("wellbeing_notes")
+}
+
+model WellbeingCheckin {
+  id          String   @id @default(cuid())
+  tenantId    String
+  studentId   String
+  mood        String
+  energyLevel Int?
+  stressLevel Int?
+  sleepQuality Int?
+  notes       String?
+  checkinDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  student     Student  @relation(fields: [studentId], references: [id])
+
+  @@index([tenantId, studentId, checkinDate])
+  @@map("wellbeing_checkins")
+}
+
+model SupportPlan {
+  id              String   @id @default(cuid())
+  tenantId        String
+  studentId       String
+  title           String
+  description     String
+  goals           Json     @default("[]")
+  strategies      Json     @default("[]")
+  startDate       DateTime
+  endDate         DateTime?
+  status          String   @default("ACTIVE") // ACTIVE, COMPLETED, DISCONTINUED
+  reviewFrequency String   @default("WEEKLY")
+  lastReviewedAt  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  student         Student  @relation(fields: [studentId], references: [id])
+
+  chronologyEntries ChronologyEntry[]
+
+  @@index([tenantId, studentId])
+  @@map("support_plans")
+}
+
+// ============================================================
+// BEHAVIOR MODULE
+// ============================================================
+
+model BehaviorCategory {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  type        String   @default("NEGATIVE") // POSITIVE, NEGATIVE
+  description String?
+  severity    Int      @default(1) // 1-5
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  incidents   BehaviorIncident[]
+
+  @@unique([tenantId, name])
+  @@map("behavior_categories")
+}
+
+model BehaviorIncident {
+  id              String   @id @default(cuid())
+  tenantId        String
+  studentId       String
+  categoryId      String
+  recorderId      String
+  title           String
+  description     String
+  location        String?
+  dateOfIncident  DateTime @default(now())
+  actionTaken     String?
+  disciplinaryAction String? // NONE, WARNING, DETENTION, SUSPENSION, RESTORATIVE
+  followUpDate    DateTime?
+  isResolved      Boolean  @default(false)
+  resolution      String?
+  attachments     Json     @default("[]")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  student         Student          @relation(fields: [studentId], references: [id])
+  category        BehaviorCategory @relation(fields: [categoryId], references: [id])
+  recorder        User             @relation("IncidentRecorder", fields: [recorderId], references: [id])
+
+  chronologyEntries ChronologyEntry[]
+
+  @@index([tenantId, studentId, dateOfIncident])
+  @@map("behavior_incidents")
+}
+
+// ============================================================
+// ATTENDANCE MODULE
+// ============================================================
+
+model AttendanceRecord {
+  id          String   @id @default(cuid())
+  tenantId    String
+  studentId   String
+  date        DateTime
+  status      String   // PRESENT, ABSENT, TARDY, EXCUSED, SUSPENDED
+  reason      String?
+  period      String?  // For period-based attendance
+  recordedById String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  student     Student  @relation(fields: [studentId], references: [id])
+
+  chronologyEntries ChronologyEntry[]
+
+  @@unique([tenantId, studentId, date, period])
+  @@index([tenantId, studentId, date])
+  @@index([tenantId, date, status])
+  @@map("attendance_records")
+}
+
+// ============================================================
+// INTERVENTIONS & MEETINGS
+// ============================================================
+
+model InterventionType {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  plans       InterventionPlan[]
+
+  @@unique([tenantId, name])
+  @@map("intervention_types")
+}
+
+model InterventionPlan {
+  id                String   @id @default(cuid())
+  tenantId          String
+  studentId         String
+  interventionTypeId String
+  creatorId         String
+  title             String
+  description       String
+  goals             Json     @default("[]")
+  startDate         DateTime
+  endDate           DateTime?
+  status            String   @default("ACTIVE") // ACTIVE, COMPLETED, DISCONTINUED
+  progress          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tenant            Tenant           @relation(fields: [tenantId], references: [id])
+  student           Student          @relation(fields: [studentId], references: [id])
+  interventionType  InterventionType @relation(fields: [interventionTypeId], references: [id])
+  creator           User             @relation("PlanCreator", fields: [creatorId], references: [id])
+
+  chronologyEntries ChronologyEntry[]
+
+  @@index([tenantId, studentId])
+  @@map("intervention_plans")
+}
+
+model ParentMeeting {
+  id          String   @id @default(cuid())
+  tenantId    String
+  studentId   String
+  organizerId String
+  title       String
+  description String?
+  meetingDate DateTime
+  attendees   Json     @default("[]")
+  notes       String?
+  outcome     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  student     Student  @relation(fields: [studentId], references: [id])
+  organizer   User     @relation(fields: [organizerId], references: [id])
+
+  chronologyEntries ChronologyEntry[]
+
+  @@index([tenantId, studentId, meetingDate])
+  @@map("parent_meetings")
+}
+
+// ============================================================
+// CHRONOLOGY
+// ============================================================
+
+model ChronologyEntry {
+  id                  String   @id @default(cuid())
+  tenantId            String
+  studentId           String
+  entryType           String   // SAFEGUARDING, BEHAVIOR, ATTENDANCE, WELLBEING, INTERVENTION, MEETING, MEDICAL
+  referenceId         String
+  title               String
+  description         String?
+  entryDate           DateTime
+  createdAt           DateTime @default(now())
+
+  tenant              Tenant                @relation(fields: [tenantId], references: [id])
+  student             Student               @relation(fields: [studentId], references: [id])
+  safeguardingConcern SafeguardingConcern?  @relation(fields: [referenceId], references: [id])
+  wellbeingNote       WellbeingNote?        @relation(fields: [referenceId], references: [id])
+  behaviorIncident    BehaviorIncident?     @relation(fields: [referenceId], references: [id])
+  attendanceRecord    AttendanceRecord?     @relation(fields: [referenceId], references: [id])
+  interventionPlan    InterventionPlan?     @relation(fields: [referenceId], references: [id])
+  parentMeeting       ParentMeeting?        @relation(fields: [referenceId], references: [id])
+  supportPlan         SupportPlan?          @relation(fields: [referenceId], references: [id])
+
+  @@index([tenantId, studentId, entryDate])
+  @@index([tenantId, entryType])
+  @@map("chronology_entries")
+}
+
+// ============================================================
+// WORKFLOW ENGINE
+// ============================================================
+
+model WorkflowRule {
+  id            String   @id @default(cuid())
+  tenantId      String
+  name          String
+  description   String?
+  triggerType   String   // RISK_LEVEL, CATEGORY, KEYWORD, ATTENDANCE
+  triggerValue  String
+  conditions    Json     @default("{}")
+  actions       Json     @default("[]") // NOTIFY_DSL, SEND_EMAIL, CREATE_TASK, ESCALATE
+  isActive      Boolean  @default(true)
+  priority      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, triggerType])
+  @@map("workflow_rules")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model NotificationTemplate {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  type        String   // EMAIL, IN_APP, SMS
+  subject     String?
+  body        String
+  variables   Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, name])
+  @@map("notification_templates")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  tenantId    String
+  type        String   // IN_APP, EMAIL, SMS
+  title       String
+  body        String
+  link        String?
+  isRead      Boolean  @default(false)
+  readAt      DateTime?
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead, createdAt])
+  @@index([tenantId, createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // SAFEGUARDING_ALERT, CASE_UPDATE, TASK_REMINDER, DIGEST
+  email       Boolean  @default(true)
+  inApp       Boolean  @default(true)
+  sms         Boolean  @default(false)
+  digest      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, type])
+  @@map("notification_preferences")
+}
+
+// ============================================================
+// AUDIT LOGGING (IMMUTABLE)
+// ============================================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  tenantId    String
+  userId      String?
+  action      String
+  entity      String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, entity, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+// ============================================================
+// AI FEATURES (OPTIONAL)
+// ============================================================
+
+model AIAnalysis {
+  id          String   @id @default(cuid())
+  tenantId    String
+  concernId   String?
+  studentId   String?
+  type        String   // SUMMARY, PATTERN, RECOMMENDATION
+  content     String
+  confidence  Float?
+  isReviewed  Boolean  @default(false)
+  reviewedById String?
+  createdAt   DateTime @default(now())
+
+  tenant      Tenant                @relation(fields: [tenantId], references: [id])
+  concern     SafeguardingConcern?  @relation(fields: [concernId], references: [id])
+  student     Student?              @relation(fields: [studentId], references: [id])
+  reviewedBy  User?                 @relation(fields: [reviewedById], references: [id])
+
+  @@index([tenantId, concernId])
+  @@map("ai_analyses")
+}
