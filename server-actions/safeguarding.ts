@@ -24,7 +24,8 @@ export async function createSafeguardingConcern(
 
   const validated = createConcernSchema.parse(data);
 
-  // Temporary mock: in production, use prisma.safeguardingConcern.create
+  // Temporary – returns a mock concern so the build passes
+  // In production, replace with a real Prisma call
   const concern = {
     id: 'temp-' + Date.now(),
     tenantId: (session.user as any).tenantId,
@@ -37,10 +38,6 @@ export async function createSafeguardingConcern(
     status: 'NEW',
     createdAt: new Date(),
   };
-
-  // In production, you would do:
-  // const concern = await prisma.safeguardingConcern.create({...});
-  // and add audit log, timeline, etc.
 
   revalidatePath('/safeguarding');
   return concern;
