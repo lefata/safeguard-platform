@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["multiSchema", "fullTextSearch"]
@@ -6,7 +7,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")   // required for migrations on Neon
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================================
@@ -43,6 +44,18 @@ model Tenant {
   auditLogs             AuditLog[]
   notificationTemplates NotificationTemplate[]
 
+  // Added opposite relations
+  safeguardingConcerns  SafeguardingConcern[]
+  wellbeingNotes        WellbeingNote[]
+  wellbeingCheckins     WellbeingCheckin[]
+  supportPlans          SupportPlan[]
+  behaviorIncidents     BehaviorIncident[]
+  attendanceRecords     AttendanceRecord[]
+  interventionPlans     InterventionPlan[]
+  parentMeetings        ParentMeeting[]
+  chronologyEntries     ChronologyEntry[]
+  aiAnalyses            AIAnalysis[]
+
   @@map("tenants")
 }
 
@@ -76,7 +89,7 @@ model User {
   staffId             String?
   phone               String?
   image               String?
-  password            String?        // for local credentials
+  password            String?
   mfaEnabled          Boolean        @default(false)
   mfaSecret           String?
   notificationPrefs   Json           @default("{}")
@@ -89,20 +102,27 @@ model User {
 
   tenant              Tenant         @relation(fields: [tenantId], references: [id])
   department          Department?    @relation("DepartmentMembers", fields: [departmentId], references: [id])
-  
+
   accounts            Account[]
   sessions            Session[]
-  
+
   createdConcerns     SafeguardingConcern[]     @relation("ConcernCreator")
   assignedConcerns    SafeguardingConcern[]     @relation("ConcernAssignee")
   caseNotes           CaseNote[]
-  actions             SafeguardingAction[]
   wellbeingNotes      WellbeingNote[]
   behaviorIncidents   BehaviorIncident[]        @relation("IncidentRecorder")
   interventionPlans   InterventionPlan[]        @relation("PlanCreator")
   notifications       Notification[]
   notificationPrefs2  NotificationPreference[]
   auditLogs           AuditLog[]
+
+  // Opposite relations for named relations
+  headedDepartments   Department[]              @relation("DepartmentHead")
+  assignedActions     SafeguardingAction[]      @relation("ActionAssignee")
+  completedActions    SafeguardingAction[]      @relation("ActionCompleter")
+  organizedMeetings   ParentMeeting[]
+  timelineEntries     CaseTimelineEntry[]
+  aiReviews           AIAnalysis[]
 
   @@unique([tenantId, email])
   @@index([tenantId])
@@ -197,7 +217,7 @@ model Student {
   tenant              Tenant                @relation(fields: [tenantId], references: [id])
   departmentId        String?
   department          Department?           @relation(fields: [departmentId], references: [id])
-  
+
   safeguardingConcerns SafeguardingConcern[]
   wellbeingNotes       WellbeingNote[]
   wellbeingCheckins    WellbeingCheckin[]
@@ -283,7 +303,7 @@ model SafeguardingConcern {
   category          SafeguardingCategory  @relation(fields: [categoryId], references: [id])
   creator           User                  @relation("ConcernCreator", fields: [creatorId], references: [id])
   assignee          User?                 @relation("ConcernAssignee", fields: [assigneeId], references: [id])
-  
+
   caseNotes         CaseNote[]
   actions           SafeguardingAction[]
   timeline          CaseTimelineEntry[]
@@ -577,7 +597,7 @@ model ParentMeeting {
 }
 
 // ============================================================
-// CHRONOLOGY
+// CHRONOLOGY (FIXED FOREIGN KEY NAMES)
 // ============================================================
 
 model ChronologyEntry {
@@ -593,13 +613,14 @@ model ChronologyEntry {
 
   tenant              Tenant                @relation(fields: [tenantId], references: [id])
   student             Student               @relation(fields: [studentId], references: [id])
-  safeguardingConcern SafeguardingConcern?  @relation(fields: [referenceId], references: [id])
-  wellbeingNote       WellbeingNote?        @relation(fields: [referenceId], references: [id])
-  behaviorIncident    BehaviorIncident?     @relation(fields: [referenceId], references: [id])
-  attendanceRecord    AttendanceRecord?     @relation(fields: [referenceId], references: [id])
-  interventionPlan    InterventionPlan?     @relation(fields: [referenceId], references: [id])
-  parentMeeting       ParentMeeting?        @relation(fields: [referenceId], references: [id])
-  supportPlan         SupportPlan?          @relation(fields: [referenceId], references: [id])
+
+  safeguardingConcern SafeguardingConcern?  @relation(fields: [referenceId], references: [id], map: "chronology_safeguarding_fk")
+  wellbeingNote       WellbeingNote?        @relation(fields: [referenceId], references: [id], map: "chronology_wellbeing_fk")
+  behaviorIncident    BehaviorIncident?     @relation(fields: [referenceId], references: [id], map: "chronology_behavior_fk")
+  attendanceRecord    AttendanceRecord?     @relation(fields: [referenceId], references: [id], map: "chronology_attendance_fk")
+  interventionPlan    InterventionPlan?     @relation(fields: [referenceId], references: [id], map: "chronology_intervention_fk")
+  parentMeeting       ParentMeeting?        @relation(fields: [referenceId], references: [id], map: "chronology_meeting_fk")
+  supportPlan         SupportPlan?          @relation(fields: [referenceId], references: [id], map: "chronology_support_fk")
 
   @@index([tenantId, studentId, entryDate])
   @@index([tenantId, entryType])
