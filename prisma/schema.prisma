@@ -1,12 +1,12 @@
-// prisma/schema.prisma
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["multiSchema", "fullTextSearch"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")   // required for migrations on Neon
 }
 
 // ============================================================
@@ -25,8 +25,8 @@ model Tenant {
   dataRetentionDays     Int       @default(2555)
   maxUsers              Int       @default(500)
   maxStudents           Int       @default(2000)
-  subscriptionTier      String    @default("BASIC") // BASIC, PRO, ENTERPRISE
-  subscriptionStatus    String    @default("ACTIVE") // ACTIVE, SUSPENDED, CANCELLED
+  subscriptionTier      String    @default("BASIC")
+  subscriptionStatus    String    @default("ACTIVE")
   features              Json      @default("{}")
   safeguardingSettings  Json      @default("{}")
   notificationSettings  Json      @default("{}")
@@ -73,10 +73,10 @@ model User {
   title               String?
   role                UserRole       @default(TEACHER)
   departmentId        String?
-  department          Department?    @relation("DepartmentMembers", fields: [departmentId], references: [id])
   staffId             String?
   phone               String?
   image               String?
+  password            String?        // for local credentials
   mfaEnabled          Boolean        @default(false)
   mfaSecret           String?
   notificationPrefs   Json           @default("{}")
@@ -185,11 +185,11 @@ model Student {
   grade           String
   homeroom        String?
   house           String?
-  enrollmentStatus String      @default("ENROLLED") // ENROLLED, WITHDRAWN, GRADUATED
+  enrollmentStatus String      @default("ENROLLED")
   photo           String?
   medicalAlerts   Json         @default("[]")
   parentContacts  Json         @default("[]")
-  externalIds     Json         @default("{}") // PowerSchool, Google, etc.
+  externalIds     Json         @default("{}")
   isActive        Boolean      @default(true)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -322,7 +322,7 @@ model SafeguardingAction {
   description   String
   dueDate       DateTime?
   completedAt   DateTime?
-  status        String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, OVERDUE
+  status        String    @default("PENDING")
   priority      String    @default("MEDIUM")
   outcome       String?
   createdAt     DateTime  @default(now())
@@ -362,9 +362,9 @@ model WellbeingNote {
   tenantId    String
   studentId   String
   authorId    String
-  noteType    String   @default("GENERAL") // GENERAL, CHECKIN, INTERVENTION, ASSESSMENT
+  noteType    String   @default("GENERAL")
   content     String
-  mood        String?  // GREAT, GOOD, OKAY, LOW, CRITICAL
+  mood        String?
   energyLevel Int?
   isPrivate   Boolean  @default(false)
   attachments Json     @default("[]")
@@ -410,7 +410,7 @@ model SupportPlan {
   strategies      Json     @default("[]")
   startDate       DateTime
   endDate         DateTime?
-  status          String   @default("ACTIVE") // ACTIVE, COMPLETED, DISCONTINUED
+  status          String   @default("ACTIVE")
   reviewFrequency String   @default("WEEKLY")
   lastReviewedAt  DateTime?
   createdAt       DateTime @default(now())
@@ -433,9 +433,9 @@ model BehaviorCategory {
   id          String   @id @default(cuid())
   tenantId    String
   name        String
-  type        String   @default("NEGATIVE") // POSITIVE, NEGATIVE
+  type        String   @default("NEGATIVE")
   description String?
-  severity    Int      @default(1) // 1-5
+  severity    Int      @default(1)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -458,7 +458,7 @@ model BehaviorIncident {
   location        String?
   dateOfIncident  DateTime @default(now())
   actionTaken     String?
-  disciplinaryAction String? // NONE, WARNING, DETENTION, SUSPENSION, RESTORATIVE
+  disciplinaryAction String?
   followUpDate    DateTime?
   isResolved      Boolean  @default(false)
   resolution      String?
@@ -486,9 +486,9 @@ model AttendanceRecord {
   tenantId    String
   studentId   String
   date        DateTime
-  status      String   // PRESENT, ABSENT, TARDY, EXCUSED, SUSPENDED
+  status      String
   reason      String?
-  period      String?  // For period-based attendance
+  period      String?
   recordedById String?
   notes       String?
   createdAt   DateTime @default(now())
@@ -536,7 +536,7 @@ model InterventionPlan {
   goals             Json     @default("[]")
   startDate         DateTime
   endDate           DateTime?
-  status            String   @default("ACTIVE") // ACTIVE, COMPLETED, DISCONTINUED
+  status            String   @default("ACTIVE")
   progress          String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -584,7 +584,7 @@ model ChronologyEntry {
   id                  String   @id @default(cuid())
   tenantId            String
   studentId           String
-  entryType           String   // SAFEGUARDING, BEHAVIOR, ATTENDANCE, WELLBEING, INTERVENTION, MEETING, MEDICAL
+  entryType           String
   referenceId         String
   title               String
   description         String?
@@ -615,10 +615,10 @@ model WorkflowRule {
   tenantId      String
   name          String
   description   String?
-  triggerType   String   // RISK_LEVEL, CATEGORY, KEYWORD, ATTENDANCE
+  triggerType   String
   triggerValue  String
   conditions    Json     @default("{}")
-  actions       Json     @default("[]") // NOTIFY_DSL, SEND_EMAIL, CREATE_TASK, ESCALATE
+  actions       Json     @default("[]")
   isActive      Boolean  @default(true)
   priority      Int      @default(0)
   createdAt     DateTime @default(now())
@@ -638,7 +638,7 @@ model NotificationTemplate {
   id          String   @id @default(cuid())
   tenantId    String
   name        String
-  type        String   // EMAIL, IN_APP, SMS
+  type        String
   subject     String?
   body        String
   variables   Json     @default("[]")
@@ -655,7 +655,7 @@ model Notification {
   id          String   @id @default(cuid())
   userId      String
   tenantId    String
-  type        String   // IN_APP, EMAIL, SMS
+  type        String
   title       String
   body        String
   link        String?
@@ -674,7 +674,7 @@ model Notification {
 model NotificationPreference {
   id          String   @id @default(cuid())
   userId      String
-  type        String   // SAFEGUARDING_ALERT, CASE_UPDATE, TASK_REMINDER, DIGEST
+  type        String
   email       Boolean  @default(true)
   inApp       Boolean  @default(true)
   sms         Boolean  @default(false)
@@ -724,7 +724,7 @@ model AIAnalysis {
   tenantId    String
   concernId   String?
   studentId   String?
-  type        String   // SUMMARY, PATTERN, RECOMMENDATION
+  type        String
   content     String
   confidence  Float?
   isReviewed  Boolean  @default(false)
