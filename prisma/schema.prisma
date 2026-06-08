@@ -329,8 +329,8 @@ model SafeguardingAction {
   updatedAt     DateTime  @updatedAt
 
   concern       SafeguardingConcern @relation(fields: [concernId], references: [id], onDelete: Cascade)
-  assignedTo    User?               @relation(fields: [assignedToId], references: [id])
-  completedBy   User?               @relation(fields: [completedById], references: [id])
+  assignedTo    User?               @relation("ActionAssignee", fields: [assignedToId], references: [id])
+  completedBy   User?               @relation("ActionCompleter", fields: [completedById], references: [id])
 
   @@index([concernId])
   @@index([assignedToId, status])
