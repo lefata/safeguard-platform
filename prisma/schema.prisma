@@ -227,6 +227,7 @@ model Student {
   parentMeetings       ParentMeeting[]
   supportPlans         SupportPlan[]
   chronologyEntries    ChronologyEntry[]
+  aiAnalyses           AIAnalysis[] 
 
   @@unique([tenantId, studentId])
   @@index([tenantId, grade])
@@ -308,6 +309,7 @@ model SafeguardingConcern {
   actions           SafeguardingAction[]
   timeline          CaseTimelineEntry[]
   chronologyEntries ChronologyEntry[]
+  aiAnalyses        AIAnalysis[]
 
   @@index([tenantId, status])
   @@index([tenantId, riskLevel])
