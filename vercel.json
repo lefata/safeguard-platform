@@ -1,0 +1,12 @@
+# vercel.json
+{
+  "version": 2,
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["lhr1"],
+  "env": {
+    "NEXT_PUBLIC_URL": "https://your-domain.vercel.app"
+  }
+}
