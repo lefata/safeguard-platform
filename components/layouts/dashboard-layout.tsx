@@ -1,10 +1,10 @@
 // src/components/layouts/dashboard-layout.tsx
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useSession, signOut } from "next-auth/react"
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   Shield,
   Heart,
@@ -20,13 +20,9 @@ import {
   ChevronDown,
   LogOut,
   User,
-  School,
-  Clock,
-  MessageSquare,
-  FileText,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,25 +30,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-interface NavItem {
-  title: string
-  href: string
-  icon: React.ComponentType<{ className?: string }>
-  roles: string[]
-  badge?: number
-}
-
-const navigation: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: BarChart3,
-    roles: ["*"],
-  },
+const navigation = [
+  { title: "Dashboard", href: "/dashboard", icon: BarChart3, roles: ["*"] },
   {
     title: "Safeguarding",
     href: "/safeguarding",
@@ -74,19 +56,14 @@ const navigation: NavItem[] = [
   {
     title: "Attendance",
     href: "/attendance",
-    icon: Clock,
+    icon: ClipboardList,
     roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "DSL", "TEACHER", "PRINCIPAL"],
   },
-  {
-    title: "Students",
-    href: "/students",
-    icon: Users,
-    roles: ["*"],
-  },
+  { title: "Students", href: "/students", icon: Users, roles: ["*"] },
   {
     title: "Reports",
     href: "/reports",
-    icon: FileText,
+    icon: BarChart3,
     roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "DSL", "DEPUTY_DSL", "PRINCIPAL", "READ_ONLY_AUDITOR"],
   },
   {
@@ -95,30 +72,30 @@ const navigation: NavItem[] = [
     icon: Settings,
     roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"],
   },
-]
+];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession()
-  const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [notifications, setNotifications] = useState(3) // Example count
+  const { data: session } = useSession();
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const userRole = session?.user?.role || "TEACHER"
-  const userName = session?.user?.name || "User"
-  const userEmail = session?.user?.email || ""
-  const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase()
+  const userRole = (session?.user as any)?.role || "TEACHER";
+  const userName = session?.user?.name || "User";
+  const userEmail = session?.user?.email || "";
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
 
-  const filteredNav = navigation.filter(item =>
-    item.roles.includes("*") || item.roles.includes(userRole)
-  )
+  const filteredNav = navigation.filter(
+    (item) => item.roles.includes("*") || item.roles.includes(userRole)
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar */}
-      <div className={cn(
-        "fixed inset-0 z-50 lg:hidden",
-        sidebarOpen ? "block" : "hidden"
-      )}>
+      <div className={cn("fixed inset-0 z-50 lg:hidden", sidebarOpen ? "block" : "hidden")}>
         <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
         <div className="fixed inset-y-0 left-0 w-72 bg-white shadow-xl">
           <div className="flex h-16 items-center justify-between px-4 border-b">
@@ -145,9 +122,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               >
                 <item.icon className="h-5 w-5" />
                 {item.title}
-                {item.badge && (
-                  <Badge variant="destructive" className="ml-auto">{item.badge}</Badge>
-                )}
               </Link>
             ))}
           </nav>
@@ -178,23 +152,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               >
                 <item.icon className="h-5 w-5" />
                 {item.title}
-                {item.badge && (
-                  <Badge variant="destructive" className="ml-auto">{item.badge}</Badge>
-                )}
               </Link>
             ))}
           </nav>
-          <div className="p-4 border-t">
-            <div className="text-xs text-gray-500 mb-2">
-              {session?.user?.role?.replace(/_/g, " ")}
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top header */}
         <header className="sticky top-0 z-40 bg-white border-b shadow-sm">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-4">
@@ -216,35 +181,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    {notifications > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                        {notifications}
-                      </span>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80">
-                  <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <div className="max-h-96 overflow-y-auto">
-                    <DropdownMenuItem className="flex flex-col items-start gap-1">
-                      <span className="font-medium text-sm">Critical Concern Alert</span>
-                      <span className="text-xs text-gray-500">Student: John Doe - Self Harm concern raised</span>
-                      <span className="text-xs text-gray-400">5 minutes ago</span>
-                    </DropdownMenuItem>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={session?.user?.image || ""} />
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <span className="hidden sm:inline text-sm font-medium">{userName}</span>
@@ -264,13 +207,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <User className="mr-2 h-4 w-4" /> Profile
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings">
-                      <Settings className="mr-2 h-4 w-4" /> Settings
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/login' })}>
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
                     <LogOut className="mr-2 h-4 w-4" /> Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -278,12 +216,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </header>
-
-        {/* Page content */}
-        <main className="p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
+        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
-  )
+  );
 }
