@@ -73,6 +73,7 @@ model User {
   title               String?
   role                UserRole       @default(TEACHER)
   departmentId        String?
+  department          Department?    @relation("DepartmentMembers", fields: [departmentId], references: [id])
   staffId             String?
   phone               String?
   image               String?
