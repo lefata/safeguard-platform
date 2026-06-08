@@ -24,7 +24,6 @@ export async function createSafeguardingConcern(
 
   const validated = createConcernSchema.parse(data);
 
-  // Temporary mock – in production use prisma.safeguardingConcern.create
   const concern = {
     id: 'temp-' + Date.now(),
     tenantId: (session.user as any).tenantId,
