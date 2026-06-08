@@ -88,7 +88,7 @@ model User {
   updatedAt           DateTime       @updatedAt
 
   tenant              Tenant         @relation(fields: [tenantId], references: [id])
-  department          Department?    @relation(fields: [departmentId], references: [id])
+  department          Department?    @relation("DepartmentMembers", fields: [departmentId], references: [id])
   
   accounts            Account[]
   sessions            Session[]
