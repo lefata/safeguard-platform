@@ -160,8 +160,8 @@ model Department {
   updatedAt DateTime @updatedAt
 
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  head      User?    @relation(fields: [headId], references: [id])
-  users     User[]
+  head      User?    @relation("DepartmentHead", fields: [headId], references: [id])
+  users     User[]   @relation("DepartmentMembers")
   students  Student[]
 
   @@unique([tenantId, name])
