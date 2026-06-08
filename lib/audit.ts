@@ -60,7 +60,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        // Simplified: in production validate against database
+        // For local accounts, validate against your database
+        // Placeholder: return a dummy user
         return { id: '1', email: credentials.email };
       },
     }),
