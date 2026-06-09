@@ -81,7 +81,7 @@ export async function notifyDSLOnCriticalConcern(params: {
       metadata: { concernId: params.concernId },
     })
 
-    if (dsl.notificationPrefs?.emailAlerts) {
+    if ((dsl.notificationPrefs as any)?.emailAlerts) {
       await sendEmailNotification({
         to: dsl.email,
         subject: `[URGENT] Critical Safeguarding Concern - ${params.studentName}`,
