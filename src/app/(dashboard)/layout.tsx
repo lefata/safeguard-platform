@@ -1,4 +1,7 @@
+// src/app/(dashboard)/layout.tsx
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+
+export const dynamic = 'force-dynamic';
 
 export default function DashboardGroupLayout({
   children,
