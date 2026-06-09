@@ -1,74 +1,66 @@
-// src/lib/auth.ts
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import AzureADProvider from 'next-auth/providers/azure-ad';   // delete this line
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@auth/prisma-adapter';
-import bcrypt from 'bcryptjs';
+// src/lib/audit.ts
 import prisma from '@/lib/prisma';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 60, // 30 minutes
-  },
-  pages: {
-    signIn: '/login',
-    error: '/login',
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-        token.tenantId = (user as any).tenantId;
-        token.mfaEnabled = (user as any).mfaEnabled;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
-        (session.user as any).tenantId = token.tenantId;
-        (session.user as any).mfaEnabled = token.mfaEnabled;
-      }
-      return session;
-    },
-  },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          hd: process.env.GOOGLE_WORKSPACE_DOMAIN,
-        },
-      },
-    }),
-    AzureADProvider({
-       clientId: process.env.AZURE_AD_CLIENT_ID!,
-       clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-       issuer: `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/v2.0`,
-     }),
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+interface AuditEntry {
+  tenantId: string;
+  userId?: string;
+  action: string;
+  entity: string;
+  entityId?: string;
+  oldValue?: any;
+  newValue?: any;
+  ipAddress?: string;
+  userAgent?: string;
+  metadata?: any;
+}
 
-        // Placeholder: validate against your database later
-        // Return a full User object matching the augmented type
-        return {
-          id: '1',
-          email: credentials.email as string,
-          tenantId: 'demo-tenant',
-          role: 'DSL',
-          mfaEnabled: false,
-        };
+export async function createAuditLog(entry: AuditEntry) {
+  return prisma.auditLog.create({
+    data: {
+      tenantId: entry.tenantId,
+      userId: entry.userId,
+      action: entry.action,
+      entity: entry.entity,
+      entityId: entry.entityId,
+      oldValue: entry.oldValue ? JSON.parse(JSON.stringify(entry.oldValue)) : undefined,
+      newValue: entry.newValue ? JSON.parse(JSON.stringify(entry.newValue)) : undefined,
+      ipAddress: entry.ipAddress,
+      userAgent: entry.userAgent,
+      metadata: entry.metadata || {},
+    },
+  });
+}
+
+export async function getAuditLogs(params: {
+  tenantId: string;
+  entity?: string;
+  entityId?: string;
+  userId?: string;
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
+  offset?: number;
+}) {
+  return prisma.auditLog.findMany({
+    where: {
+      tenantId: params.tenantId,
+      ...(params.entity && { entity: params.entity }),
+      ...(params.entityId && { entityId: params.entityId }),
+      ...(params.userId && { userId: params.userId }),
+      ...(params.startDate && params.endDate && {
+        createdAt: {
+          gte: params.startDate,
+          lte: params.endDate,
+        },
+      }),
+    },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true, role: true },
       },
-    }),
+    },
+    orderBy: { createdAt: 'desc' },
+    take: params.limit || 100,
+    skip: params.offset || 0,
+  });
+}
