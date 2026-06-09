@@ -1,7 +1,7 @@
 // src/lib/storage.ts
 import { put, del, list } from '@vercel/blob'
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+//import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import crypto from 'crypto'
 
 const encryptionKey = process.env.ENCRYPTION_KEY || 'default-key-change-in-production'
@@ -67,14 +67,14 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
   return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`
 }
 
-export async function getSignedS3Url(key: string, expiresIn: number = 3600): Promise<string> {
-  const command = new GetObjectCommand({
-    Bucket: process.env.S3_BUCKET || 'safeguard-uploads',
-    Key: key,
-  })
+//export async function getSignedS3Url(key: string, expiresIn: number = 3600): Promise<string> {
+//  const command = new GetObjectCommand({
+//    Bucket: process.env.S3_BUCKET || 'safeguard-uploads',
+//    Key: key,
+//  })
   
-  return getSignedUrl(s3Client, command, { expiresIn })
-}
+//  return getSignedUrl(s3Client, command, { expiresIn })
+//}
 
 export async function deleteFromS3(key: string): Promise<void> {
   await s3Client.send(new DeleteObjectCommand({
