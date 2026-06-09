@@ -60,8 +60,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        return { id: '1', email: credentials.email };
+
+        // Placeholder: validate against your database later
+        // Return a full User object matching the augmented type
+        return {
+          id: '1',
+          email: credentials.email as string,
+          tenantId: 'demo-tenant',
+          role: 'DSL',
+          mfaEnabled: false,
+        };
       },
     }),
-  ],
-});
