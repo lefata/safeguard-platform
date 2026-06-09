@@ -1,7 +1,10 @@
 // src/app/(dashboard)/safeguarding/new/page.tsx
-"use client"
+"use client";
 
-import { useState } from 'react'
+export const dynamic = 'force-dynamic';
+
+import { useState } from 'react';
+// … rest of your imports
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
