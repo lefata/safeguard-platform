@@ -4,7 +4,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import AzureADProvider from 'next-auth/providers/azure-ad';   // delete this line
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -21,18 +20,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role;
-        token.tenantId = (user as any).tenantId;
-        token.mfaEnabled = (user as any).mfaEnabled;
+        token.role = user.role;
+        token.tenantId = user.tenantId;
+        token.mfaEnabled = user.mfaEnabled;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
-        (session.user as any).tenantId = token.tenantId;
-        (session.user as any).mfaEnabled = token.mfaEnabled;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.tenantId = token.tenantId;
+        session.user.mfaEnabled = token.mfaEnabled;
       }
       return session;
     },
@@ -61,8 +60,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        // Placeholder: validate against your database later
-        // Return a full User object matching the augmented type
         return {
           id: '1',
           email: credentials.email as string,
@@ -72,3 +69,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
+  ],
+});
