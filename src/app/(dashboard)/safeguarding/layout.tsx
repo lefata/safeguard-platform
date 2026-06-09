@@ -1,12 +1,13 @@
-// src/app/(dashboard)/safeguarding/layout.tsx
+// src/app/(dashboard)/layout.tsx
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
-// Force all safeguarding pages to be rendered dynamically (no static generation)
+// Prevent static generation – all dashboard pages require auth
 export const dynamic = 'force-dynamic';
 
-export default function SafeguardingLayout({
+export default function DashboardGroupLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }
