@@ -16,22 +16,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
     error: '/login',
   },
-  callbacks: {
+    callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.tenantId = user.tenantId;
-        token.mfaEnabled = user.mfaEnabled;
+        token.id = user.id as string;
+        token.role = user.role as string;
+        token.tenantId = user.tenantId as string;
+        token.mfaEnabled = user.mfaEnabled as boolean;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.tenantId = token.tenantId;
-        session.user.mfaEnabled = token.mfaEnabled;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.tenantId = token.tenantId as string;
+        session.user.mfaEnabled = token.mfaEnabled as boolean;
       }
       return session;
     },
