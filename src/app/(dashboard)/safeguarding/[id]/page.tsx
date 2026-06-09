@@ -204,7 +204,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
                       <Badge variant={
                         action.status === 'COMPLETED' ? 'success' :
                         action.status === 'OVERDUE' ? 'destructive' :
-                        action.status === 'IN_PROGRESS' ? 'info' : 'secondary'
+                        action.status === 'IN_PROGRESS' ? 'secondary' : 'secondary'
                       }>
                         {action.status.replace(/_/g, ' ')}
                       </Badge>
