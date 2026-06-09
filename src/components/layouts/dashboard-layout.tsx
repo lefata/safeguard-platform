@@ -95,9 +95,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile sidebar overlay */}
-      <div className={cn("fixed inset-0 z-50 lg:hidden", sidebarOpen ? "block" : "hidden")}>
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+      {/* Mobile sidebar – fixed, high z‑index, backdrop */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 lg:hidden",
+          sidebarOpen ? "block" : "hidden"
+        )}
+      >
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
         <div className="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl border-r animate-in slide-in-from-left duration-300">
           <SidebarContent
             filteredNav={filteredNav}
@@ -107,15 +115,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+      {/* Desktop sidebar – fixed, left */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col z-40">
         <div className="flex flex-col flex-grow border-r bg-white shadow-sm">
           <SidebarContent filteredNav={filteredNav} pathname={pathname} />
         </div>
       </div>
 
-      {/* Main content */}
+      {/* Main content – offset by sidebar width on desktop */}
       <div className="lg:pl-64">
+        {/* Sticky header with backdrop blur */}
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b shadow-sm">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-4">
@@ -157,7 +166,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 p-1">
+                <DropdownMenuContent align="end" className="w-56 p-1 z-50">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium">{userName}</p>
