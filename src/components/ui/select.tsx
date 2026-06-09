@@ -1,10 +1,5 @@
 import * as React from "react"
-import {
-  CaretSortIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@radix-ui/react-icons"
+import { ChevronsUpDown, Check, ChevronDown, ChevronUp } from "lucide-react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { cn } from "@/lib/utils"
 
