@@ -8,17 +8,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Main school brand colours
         school: {
-          50: "#f0f4ff",
-          100: "#dbe4ff",
-          200: "#bac8ff",
-          300: "#91a7ff",
-          400: "#748ffc",
-          500: "#5c7cfa",
-          600: "#4c6ef5",
-          700: "#4263eb",
-          800: "#3b5bdb",
-          900: "#364fc7",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
+        },
+        // Semantic colours for risk levels
+        risk: {
+          low: "#f0fdf4",
+          "low-text": "#166534",
+          medium: "#fefce8",
+          "medium-text": "#854d0e",
+          high: "#fff7ed",
+          "high-text": "#9a3412",
+          critical: "#fef2f2",
+          "critical-text": "#991b1b",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -60,12 +72,16 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        "soft": "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
-        "card": "0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.05), 0 12px 24px rgba(0,0,0,0.05)",
+        "school-card": "0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.04), 0 12px 24px rgba(0,0,0,0.04)",
+        "school-hover": "0 0 0 1px rgba(59,130,246,0.1), 0 4px 6px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.06)",
+        "soft": "0 2px 15px -3px rgba(0, 0, 0, 0.04), 0 10px 20px -2px rgba(0, 0, 0, 0.02)",
+      },
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
       },
       keyframes: {
         "fade-in": {
-          "0%": { opacity: "0", transform: "translateY(5px)" },
+          "0%": { opacity: "0", transform: "translateY(4px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
