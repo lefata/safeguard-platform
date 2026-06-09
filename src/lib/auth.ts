@@ -1,7 +1,6 @@
 // src/lib/auth.ts
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-//import AzureADProvider from 'next-auth/providers/azure-ad';   // delete this line
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
@@ -47,11 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
       },
     }),
-        // AzureADProvider({
-    //   clientId: process.env.AZURE_AD_CLIENT_ID!,
-    //   clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-    //   issuer: `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/v2.0`,
-    // }),
+    
     CredentialsProvider({
       name: 'credentials',
       credentials: {
