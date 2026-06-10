@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { ActionItem } from '@/components/safeguarding/action-item';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -280,7 +281,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
             </Card>
           )}
 
-          {/* Actions List */}
+                   {/* Actions List */}
           <Card className="shadow-school-card border-0">
             <CardHeader>
               <CardTitle>Actions</CardTitle>
@@ -292,41 +293,23 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
               ) : (
                 <div className="space-y-3">
                   {concern.actions.map((action) => (
-                    <div key={action.id} className="flex items-center justify-between p-4 rounded-xl border bg-white">
-                      <div>
-                        <p className="font-medium text-sm">{action.description}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Type: {action.actionType} • Assigned to: {action.assignedTo?.name || 'Unassigned'}
-                          {action.dueDate && ` • Due: ${formatDate(action.dueDate)}`}
-                        </p>
-                        {action.status === 'COMPLETED' && action.completedBy && (
-                          <p className="text-xs text-green-600 mt-1">
-                            ✅ Completed by {action.completedBy.name} on {formatDate(action.completedAt!)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={
-                          action.status === 'COMPLETED' ? 'success' :
-                          action.status === 'OVERDUE' ? 'destructive' :
-                          'secondary'
-                        }>
-                          {action.status.replace(/_/g, ' ')}
-                        </Badge>
-                        {action.status !== 'COMPLETED' && (
-                          <form
-                            action={async () => {
-                              'use server';
-                              await completeAction(action.id, concern.id);
-                            }}
-                          >
-                            <Button variant="outline" size="sm" type="submit">
-                              Complete
-                            </Button>
-                          </form>
-                        )}
-                      </div>
-                    </div>
+                    <ActionItem
+                      key={action.id}
+                      action={{
+                        id: action.id,
+                        concernId: concern.id,
+                        actionType: action.actionType,
+                        description: action.description,
+                        assignedTo: action.assignedTo,
+                        completedBy: action.completedBy,
+                        dueDate: action.dueDate?.toISOString() ?? null,
+                        status: action.status,
+                        priority: action.priority,
+                        completedAt: action.completedAt?.toISOString() ?? null,
+                      }}
+                      staffList={staffList}
+                      isDSL={isDSL}
+                    />
                   ))}
                 </div>
               )}
