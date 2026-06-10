@@ -1,45 +1,45 @@
 "use client";
 
-// MUST be at the top level, before the component
-export const dynamic = 'force-dynamic';
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { createSafeguardingConcern } from '@/server-actions/safeguarding'
-import { toast } from 'sonner'
-import { ArrowLeft, Loader2 } from 'lucide-react'
-import Link from 'next/link'
+} from "@/components/ui/select";
+import { createSafeguardingConcern } from "@/server-actions/safeguarding";
+import { getStudents } from "@/server-actions/students";
+import { toast } from "sonner";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 const concernSchema = z.object({
   studentId: z.string().min(1, "Student is required"),
   categoryId: z.string().min(1, "Category is required"),
-  title: z.string().min(3, "Title must be at least 3 characters").max(200),
-  description: z.string().min(10, "Description must be at least 10 characters").max(5000),
-  riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  title: z.string().min(3).max(200),
+  description: z.string().min(10).max(5000),
+  riskLevel: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
   locationOfIncident: z.string().optional(),
   immediateActions: z.string().optional(),
-})
+});
 
-type ConcernFormData = z.infer<typeof concernSchema>
+type ConcernFormData = z.infer<typeof concernSchema>;
 
 export default function NewSafeguardingConcernPage() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [students, setStudents] = useState<{ id: string; firstName: string; lastName: string; grade: string }[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(true);
 
   const {
     register,
@@ -49,22 +49,37 @@ export default function NewSafeguardingConcernPage() {
   } = useForm<ConcernFormData>({
     resolver: zodResolver(concernSchema),
     defaultValues: {
-      riskLevel: 'MEDIUM',
+      riskLevel: "MEDIUM",
     },
-  })
+  });
+
+  // Load students from database
+  useEffect(() => {
+    async function loadStudents() {
+      try {
+        const data = await getStudents();
+        setStudents(data);
+      } catch (error) {
+        toast.error("Failed to load student list");
+      } finally {
+        setLoadingStudents(false);
+      }
+    }
+    loadStudents();
+  }, []);
 
   const onSubmit = async (data: ConcernFormData) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const concern = await createSafeguardingConcern(data)
-      toast.success('Safeguarding concern created successfully')
-      router.push(`/safeguarding/${concern.id}`)
+      const concern = await createSafeguardingConcern(data);
+      toast.success("Safeguarding concern created successfully");
+      router.push(`/safeguarding/${concern.id}`);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create concern')
+      toast.error(error.message || "Failed to create concern");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -92,13 +107,19 @@ export default function NewSafeguardingConcernPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="studentId">Student *</Label>
-                <Select onValueChange={(value) => setValue('studentId', value)}>
+                <Select
+                  onValueChange={(value) => setValue("studentId", value)}
+                  disabled={loadingStudents}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select student" />
+                    <SelectValue placeholder={loadingStudents ? "Loading students…" : "Select student"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="student-1">John Doe - Grade 10</SelectItem>
-                    <SelectItem value="student-2">Jane Smith - Grade 9</SelectItem>
+                    {students.map((student) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.firstName} {student.lastName} - Grade {student.grade}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.studentId && (
@@ -108,18 +129,24 @@ export default function NewSafeguardingConcernPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="categoryId">Category *</Label>
-                <Select onValueChange={(value) => setValue('categoryId', value)}>
+                <Select onValueChange={(value) => setValue("categoryId", value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
+                    {/* Use your real category IDs if you have them, or dynamic like students */}
                     <SelectItem value="cat-1">Child Protection</SelectItem>
-                    <SelectItem value="cat-2">Emotional Wellbeing</SelectItem>
-                    <SelectItem value="cat-3">Self Harm</SelectItem>
-                    <SelectItem value="cat-4">Bullying</SelectItem>
-                    <SelectItem value="cat-5">Online Safety</SelectItem>
-                    <SelectItem value="cat-6">Neglect</SelectItem>
-                    <SelectItem value="cat-7">Other</SelectItem>
+                    <SelectItem value="cat-2">Neglect</SelectItem>
+                    <SelectItem value="cat-3">Emotional Wellbeing</SelectItem>
+                    <SelectItem value="cat-4">Self Harm</SelectItem>
+                    <SelectItem value="cat-5">Bullying</SelectItem>
+                    <SelectItem value="cat-6">Online Safety</SelectItem>
+                    <SelectItem value="cat-7">Attendance</SelectItem>
+                    <SelectItem value="cat-8">Medical Concern</SelectItem>
+                    <SelectItem value="cat-9">Substance Abuse</SelectItem>
+                    <SelectItem value="cat-10">Peer Conflict</SelectItem>
+                    <SelectItem value="cat-11">Radicalization</SelectItem>
+                    <SelectItem value="cat-12">Other</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.categoryId && (
@@ -130,27 +157,19 @@ export default function NewSafeguardingConcernPage() {
 
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>
-              <Input
-                id="title"
-                placeholder="Brief title describing the concern"
-                {...register('title')}
-              />
-              {errors.title && (
-                <p className="text-sm text-red-500">{errors.title.message}</p>
-              )}
+              <Input id="title" placeholder="Brief title" {...register("title")} />
+              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Description *</Label>
               <Textarea
                 id="description"
-                placeholder="Provide a detailed account of the concern. Include what happened, when, where, and who was involved."
+                placeholder="Detailed account of the concern"
                 rows={6}
-                {...register('description')}
+                {...register("description")}
               />
-              {errors.description && (
-                <p className="text-sm text-red-500">{errors.description.message}</p>
-              )}
+              {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -158,7 +177,7 @@ export default function NewSafeguardingConcernPage() {
                 <Label htmlFor="riskLevel">Risk Level *</Label>
                 <Select
                   defaultValue="MEDIUM"
-                  onValueChange={(value) => setValue('riskLevel', value as any)}
+                  onValueChange={(value) => setValue("riskLevel", value as any)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -174,11 +193,7 @@ export default function NewSafeguardingConcernPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="locationOfIncident">Location</Label>
-                <Input
-                  id="locationOfIncident"
-                  placeholder="Where did this occur?"
-                  {...register('locationOfIncident')}
-                />
+                <Input id="locationOfIncident" placeholder="Where?" {...register("locationOfIncident")} />
               </div>
             </div>
 
@@ -186,9 +201,9 @@ export default function NewSafeguardingConcernPage() {
               <Label htmlFor="immediateActions">Immediate Actions Taken</Label>
               <Textarea
                 id="immediateActions"
-                placeholder="Describe any immediate actions taken to address the concern"
+                placeholder="Describe any immediate actions"
                 rows={3}
-                {...register('immediateActions')}
+                {...register("immediateActions")}
               />
             </div>
           </CardContent>
@@ -198,18 +213,18 @@ export default function NewSafeguardingConcernPage() {
           <Button variant="outline" type="button" asChild>
             <Link href="/safeguarding">Cancel</Link>
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || loadingStudents}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
+                Submitting…
               </>
             ) : (
-              'Submit Concern'
+              "Submit Concern"
             )}
           </Button>
         </div>
       </form>
     </div>
-  )
+  );
 }
