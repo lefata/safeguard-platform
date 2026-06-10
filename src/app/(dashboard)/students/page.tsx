@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from './columns';
 import prisma from '@/lib/prisma';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
 export default async function StudentsPage() {
   const session = await auth();
