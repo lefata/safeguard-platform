@@ -63,20 +63,6 @@ model Tenant {
 // USERS & AUTHENTICATION
 // ============================================================
 
-enum UserRole {
-  SUPER_ADMIN
-  SCHOOL_ADMIN
-  DSL
-  DEPUTY_DSL
-  COUNSELOR
-  PRINCIPAL
-  TEACHER
-  NURSE
-  STUDENT_SUPPORT
-  READ_ONLY_AUDITOR
-  PARENT
-}
-
 model User {
   id                  String         @id @default(cuid())
   tenantId            String
@@ -84,7 +70,7 @@ model User {
   emailVerified       DateTime?
   name                String?
   title               String?
-  role                UserRole       @default(TEACHER)
+  role                String       @default("TEACHER")
   departmentId        String?
   staffId             String?
   phone               String?
@@ -257,22 +243,7 @@ model SafeguardingCategory {
   @@map("safeguarding_categories")
 }
 
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
 
-enum CaseStatus {
-  NEW
-  UNDER_REVIEW
-  INVESTIGATING
-  ESCALATED
-  MONITORING
-  CLOSED
-  ARCHIVED
-}
 
 model SafeguardingConcern {
   id                String       @id @default(cuid())
@@ -283,8 +254,8 @@ model SafeguardingConcern {
   assigneeId        String?
   title             String
   description       String
-  riskLevel         RiskLevel    @default(MEDIUM)
-  status            CaseStatus   @default(NEW)
+  riskLevel         String       @default("MEDIUM")
+  status            String       @default("NEW")
   dateOfIncident    DateTime     @default(now())
   locationOfIncident String?
   immediateActions   String?
