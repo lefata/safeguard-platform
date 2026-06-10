@@ -135,3 +135,137 @@ export async function getSafeguardingConcerns(filters?: {
     take: 100,
   });
 }
+// Add a case note (any authenticated user with access to the concern)
+export async function addCaseNote(concernId: string, content: string, isInternal: boolean = true) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+
+  const concern = await prisma.safeguardingConcern.findUnique({ where: { id: concernId } });
+  if (!concern || concern.tenantId !== (session.user as any).tenantId) throw new Error('Not found');
+
+  const note = await prisma.caseNote.create({
+    data: {
+      concernId,
+      authorId: (session.user as any).id,
+      content,
+      isInternal,
+    },
+  });
+
+  await prisma.caseTimelineEntry.create({
+    data: {
+      concernId,
+      actorId: (session.user as any).id,
+      action: 'NOTE_ADDED',
+      description: `${isInternal ? 'Internal' : 'Shared'} note added`,
+    },
+  });
+
+  revalidatePath(`/safeguarding/${concernId}`);
+  return note;
+}
+
+// Add an action (DSL/Deputy DSL)
+export async function addSafeguardingAction(data: {
+  concernId: string;
+  actionType: string;
+  description: string;
+  assignedToId?: string;
+  dueDate?: string;
+  priority?: string;
+}) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  const role = (session.user as any).role;
+  if (!['DSL', 'DEPUTY_DSL', 'SUPER_ADMIN', 'SCHOOL_ADMIN'].includes(role)) {
+    throw new Error('Only DSLs can add actions');
+  }
+
+  const action = await prisma.safeguardingAction.create({
+    data: {
+      concernId: data.concernId,
+      assignedToId: data.assignedToId || (session.user as any).id,
+      actionType: data.actionType,
+      description: data.description,
+      dueDate: data.dueDate ? new Date(data.dueDate) : null,
+      priority: data.priority || 'MEDIUM',
+      status: 'PENDING',
+    },
+  });
+
+  await prisma.caseTimelineEntry.create({
+    data: {
+      concernId: data.concernId,
+      actorId: (session.user as any).id,
+      action: 'ACTION_ADDED',
+      description: `New action: ${data.actionType} - ${data.description}`,
+    },
+  });
+
+  revalidatePath(`/safeguarding/${data.concernId}`);
+  return action;
+}
+
+// Update case status (DSL/Deputy DSL)
+export async function updateCaseStatus(concernId: string, status: string, notes?: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  const role = (session.user as any).role;
+  if (!['DSL', 'DEPUTY_DSL', 'SUPER_ADMIN', 'SCHOOL_ADMIN'].includes(role)) {
+    throw new Error('Only DSLs can update case status');
+  }
+
+  const old = await prisma.safeguardingConcern.findUnique({ where: { id: concernId } });
+  if (!old || old.tenantId !== (session.user as any).tenantId) throw new Error('Not found');
+
+  const updated = await prisma.safeguardingConcern.update({
+    where: { id: concernId },
+    data: {
+      status,
+      closedAt: status === 'CLOSED' ? new Date() : null,
+      closureNotes: notes || undefined,
+    },
+  });
+
+  await prisma.caseTimelineEntry.create({
+    data: {
+      concernId,
+      actorId: (session.user as any).id,
+      action: 'STATUS_CHANGED',
+      description: `Status changed from ${old.status} to ${status}${notes ? ': ' + notes : ''}`,
+    },
+  });
+
+  revalidatePath(`/safeguarding/${concernId}`);
+  return updated;
+}
+
+// Assign case (DSL/Deputy DSL)
+export async function assignCase(concernId: string, assigneeId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  const role = (session.user as any).role;
+  if (!['DSL', 'DEPUTY_DSL', 'SUPER_ADMIN', 'SCHOOL_ADMIN'].includes(role)) {
+    throw new Error('Only DSLs can assign cases');
+  }
+
+  const updated = await prisma.safeguardingConcern.update({
+    where: { id: concernId },
+    data: {
+      assigneeId,
+      status: 'INVESTIGATING',
+    },
+  });
+
+  await prisma.caseTimelineEntry.create({
+    data: {
+      concernId,
+      actorId: (session.user as any).id,
+      action: 'ASSIGNED',
+      description: `Case assigned to user ${assigneeId}`,
+    },
+  });
+
+  revalidatePath(`/safeguarding/${concernId}`);
+  return updated;
+}
