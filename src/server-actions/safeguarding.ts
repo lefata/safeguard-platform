@@ -308,3 +308,48 @@ export async function completeAction(actionId: string, concernId: string) {
   revalidatePath(`/safeguarding/${concernId}`);
   return updated;
 }
+
+export async function updateAction(
+  actionId: string,
+  concernId: string,
+  data: {
+    actionType?: string;
+    description?: string;
+    assignedToId?: string;
+    dueDate?: string;
+    priority?: string;
+  }
+) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  const role = (session.user as any).role;
+  if (!['DSL', 'DEPUTY_DSL', 'SUPER_ADMIN', 'SCHOOL_ADMIN'].includes(role)) {
+    throw new Error('Only DSLs can edit actions');
+  }
+
+  const action = await prisma.safeguardingAction.findUnique({ where: { id: actionId } });
+  if (!action || action.concernId !== concernId) throw new Error('Action not found');
+
+  const updated = await prisma.safeguardingAction.update({
+    where: { id: actionId },
+    data: {
+      ...(data.actionType && { actionType: data.actionType }),
+      ...(data.description && { description: data.description }),
+      ...(data.assignedToId !== undefined && { assignedToId: data.assignedToId }),
+      ...(data.dueDate !== undefined && { dueDate: data.dueDate ? new Date(data.dueDate) : null }),
+      ...(data.priority && { priority: data.priority }),
+    },
+  });
+
+  await prisma.caseTimelineEntry.create({
+    data: {
+      concernId,
+      actorId: (session.user as any).id,
+      action: 'ACTION_UPDATED',
+      description: `Action "${updated.actionType}" updated`,
+    },
+  });
+
+  revalidatePath(`/safeguarding/${concernId}`);
+  return updated;
+}
