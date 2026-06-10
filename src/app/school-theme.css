@@ -1,0 +1,84 @@
+/* school-theme.css – applies professional school look without Tailwind classes */
+
+/* ---------- Body & general backgrounds ---------- */
+body {
+  background-color: #f4f7fb !important;   /* soft school light blue */
+  color: #1e293b !important;              /* dark slate for text */
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Cards (login, dashboard panels) ---------- */
+div.rounded-2xl.bg-card,
+div[class*="rounded-2xl"][class*="bg-card"],
+.card, .shadow-school-card {
+  background-color: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.04), 0 12px 24px rgba(0,0,0,0.04) !important;
+  border: none !important;
+}
+
+/* ---------- Buttons ---------- */
+button[type="submit"],
+button.bg-primary,
+button.bg-gradient-to-r {
+  background-image: linear-gradient(to right, #2563eb, #1d4ed8) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+button.bg-primary:hover,
+button.bg-gradient-to-r:hover {
+  background-image: linear-gradient(to right, #1d4ed8, #1e40af) !important;
+}
+
+/* ---------- Inputs ---------- */
+input, textarea {
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+}
+
+/* ---------- Sidebar ---------- */
+nav a, .sidebar-link {
+  color: #4b5563 !important;
+  border-radius: 12px !important;
+}
+nav a.active, .sidebar-link.active {
+  background-color: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+/* ---------- Header ---------- */
+header {
+  background-color: rgba(255,255,255,0.8) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* ---------- Risk badges ---------- */
+span[class*="bg-risk"] {
+  border-radius: 9999px !important;
+  padding: 2px 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Gradient background on login page ---------- */
+div.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, #eff6ff, #ffffff, #dbeafe) !important;
+}
+
+/* ---------- School logo shield ---------- */
+div.h-14.w-14.rounded-2xl {
+  background-image: linear-gradient(to bottom right, #2563eb, #1e40af) !important;
+}
+
+/* ---------- Fade-in animation (optional) ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out !important;
+}
