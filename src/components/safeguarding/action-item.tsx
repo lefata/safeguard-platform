@@ -22,8 +22,8 @@ interface Action {
   concernId: string;
   actionType: string;
   description: string;
-  assignedTo?: { id: string; name: string } | null;
-  completedBy?: { id: string; name: string } | null;
+  assignedTo?: { id: string; name: string | null } | null;  // allow null
+  completedBy?: { id: string; name: string | null } | null;
   dueDate?: string | null;
   status: string;
   priority: string;
@@ -153,14 +153,14 @@ export function ActionItem({
           <div>
             <p className="font-medium text-sm">{action.description}</p>
             <p className="text-xs text-muted-foreground">
-              Type: {action.actionType} • Assigned to: {action.assignedTo?.name || "Unassigned"}
-              {action.dueDate && ` • Due: ${formatDate(action.dueDate)}`}
+                Type: {action.actionType} • Assigned to: {action.assignedTo?.name || "Unassigned"}
+                {action.dueDate && ` • Due: ${formatDate(action.dueDate)}`}
             </p>
             {action.status === "COMPLETED" && action.completedBy && (
-              <p className="text-xs text-green-600 mt-1">
-                ✅ Completed by {action.completedBy.name} on {formatDate(action.completedAt!)}
-              </p>
-            )}
+                <p className="text-xs text-green-600 mt-1">
+                ✅ Completed by {action.completedBy.name || "Unknown"} on {formatDate(action.completedAt!)}
+            </p>
+          )}
           </div>
           <div className="flex items-center gap-2">
             <Badge
