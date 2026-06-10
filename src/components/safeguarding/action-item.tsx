@@ -32,7 +32,7 @@ interface Action {
 
 interface Staff {
   id: string;
-  name: string;
+  name: string | null;
   role: string;
 }
 
@@ -125,7 +125,9 @@ export function ActionItem({
                 <SelectTrigger><SelectValue placeholder="Select staff" /></SelectTrigger>
                 <SelectContent>
                   {staffList.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    <SelectItem key={u.id} value={u.id}>
+                    {u.name || "Unknown"} ({u.role})
+                   </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
