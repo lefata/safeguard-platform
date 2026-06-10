@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-school-50 via-white to-school-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-card border-0 animate-fade-in">
+      <Card className="w-full max-w-md shadow-school-card border-0 animate-fade-in">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center">
             <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-school-500 to-school-700 flex items-center justify-center shadow-lg">
