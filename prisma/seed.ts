@@ -1,5 +1,5 @@
 // prisma/seed.ts
-import { PrismaClient, UserRole } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -34,18 +34,18 @@ async function main() {
   const password = await bcrypt.hash('password123', 12)
 
   const users = [
-    { email: 'superadmin@safeguard.com', name: 'Super Admin', role: 'SUPER_ADMIN' as UserRole },
-    { email: 'admin@demoschool.com', name: 'Sarah Johnson', role: 'SCHOOL_ADMIN' as UserRole },
-    { email: 'dsl@demoschool.com', name: 'Mark Thompson', role: 'DSL' as UserRole },
-    { email: 'deputy-dsl@demoschool.com', name: 'Emma Williams', role: 'DEPUTY_DSL' as UserRole },
-    { email: 'counselor@demoschool.com', name: 'Dr. Lisa Chen', role: 'COUNSELOR' as UserRole },
-    { email: 'principal@demoschool.com', name: 'Robert Davis', role: 'PRINCIPAL' as UserRole },
-    { email: 'teacher@demoschool.com', name: 'James Wilson', role: 'TEACHER' as UserRole },
-    { email: 'teacher2@demoschool.com', name: 'Maria Garcia', role: 'TEACHER' as UserRole },
-    { email: 'nurse@demoschool.com', name: 'Patricia Brown', role: 'NURSE' as UserRole },
-    { email: 'support@demoschool.com', name: 'Tom Anderson', role: 'STUDENT_SUPPORT' as UserRole },
-    { email: 'auditor@demoschool.com', name: 'Audit Viewer', role: 'READ_ONLY_AUDITOR' as UserRole },
-  ]
+  { email: 'superadmin@safeguard.com', name: 'Super Admin', role: 'SUPER_ADMIN' },
+  { email: 'admin@demoschool.com', name: 'Sarah Johnson', role: 'SCHOOL_ADMIN' },
+  { email: 'dsl@demoschool.com', name: 'Mark Thompson', role: 'DSL' },
+  { email: 'deputy-dsl@demoschool.com', name: 'Emma Williams', role: 'DEPUTY_DSL' },
+  { email: 'counselor@demoschool.com', name: 'Dr. Lisa Chen', role: 'COUNSELOR' },
+  { email: 'principal@demoschool.com', name: 'Robert Davis', role: 'PRINCIPAL' },
+  { email: 'teacher@demoschool.com', name: 'James Wilson', role: 'TEACHER' },
+  { email: 'teacher2@demoschool.com', name: 'Maria Garcia', role: 'TEACHER' },
+  { email: 'nurse@demoschool.com', name: 'Patricia Brown', role: 'NURSE' },
+  { email: 'support@demoschool.com', name: 'Tom Anderson', role: 'STUDENT_SUPPORT' },
+  { email: 'auditor@demoschool.com', name: 'Audit Viewer', role: 'READ_ONLY_AUDITOR' },
+];
 
   for (const userData of users) {
     await prisma.user.upsert({
