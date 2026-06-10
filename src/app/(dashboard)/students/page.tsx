@@ -1,11 +1,12 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from './columns';
 import prisma from '@/lib/prisma';
-import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 export default async function StudentsPage() {
   const session = await auth();
@@ -28,12 +29,20 @@ export default async function StudentsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Students</h1>
-        <p className="text-muted-foreground">Manage your school’s student records.</p>
+      {/* Header with import button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Students</h1>
+          <p className="text-muted-foreground">Manage your school’s student records.</p>
+        </div>
+        <Button asChild>
+          <Link href="/students/import">
+            <Upload className="mr-2 h-4 w-4" /> Import CSV
+          </Link>
+        </Button>
       </div>
 
-      <Card className="shadow-card border-0">
+      <Card className="shadow-school-card border-0">
         <CardHeader>
           <CardTitle>All Students</CardTitle>
           <CardDescription>{students.length} student(s) found</CardDescription>
