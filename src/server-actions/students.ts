@@ -115,3 +115,19 @@ export async function importStudentsFromCSV(formData: FormData) {
 
   return { inserted, errors };
 }
+// src/server-actions/students.ts (add this below the existing code)
+export async function getStudents() {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+
+  return prisma.student.findMany({
+    where: { tenantId: (session.user as any).tenantId, isActive: true },
+    orderBy: { lastName: 'asc' },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      grade: true,
+    },
+  });
+}
