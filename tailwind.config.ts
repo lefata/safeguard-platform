@@ -4,6 +4,33 @@ const config: Config = {
   content: [
     "./src/**/*.{ts,tsx}",
   ],
+  safelist: [
+  // Force all bg-school-* and text-school-* classes
+  {
+    pattern: /bg-school-/,
+    variants: ['hover', 'focus', 'active'],
+  },
+  {
+    pattern: /text-school-/,
+  },
+  {
+    pattern: /from-school-/,
+  },
+  {
+    pattern: /to-school-/,
+  },
+  {
+    pattern: /border-school-/,
+  },
+  {
+    pattern: /ring-school-/,
+  },
+  // Force the custom shadow and animation classes
+  'shadow-school-card',
+  'shadow-school-hover',
+  'shadow-soft',
+  'animate-fade-in',
+],
   theme: {
     extend: {
       colors: {
