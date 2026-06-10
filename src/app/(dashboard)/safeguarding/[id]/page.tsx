@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { addCaseNote, addSafeguardingAction, updateCaseStatus, assignCase, completeAction } from '@/server-actions/safeguarding';
 import {
   Select,
   SelectContent,
@@ -26,8 +25,7 @@ import Link from 'next/link';
 import { CaseTimeline } from '@/components/safeguarding/case-timeline';
 import { CaseActions } from '@/components/safeguarding/case-actions';
 import prisma from '@/lib/prisma';
-import { addCaseNote, addSafeguardingAction, updateCaseStatus, assignCase } from '@/server-actions/safeguarding';
-import { getStudents } from '@/server-actions/students';  // for assignee list? Actually we need staff list, but we'll use a simple input for now
+import { addCaseNote, addSafeguardingAction, updateCaseStatus, assignCase, completeAction } from '@/server-actions/safeguarding';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -39,7 +37,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
 
   const { id } = await params;
   const tenantId = (session.user as any).tenantId;
-  const currentUserId = (session.user as any).id;
+  const userId = (session.user as any).id;
   const userRole = (session.user as any).role as string;
 
   const concern = await prisma.safeguardingConcern.findUnique({
@@ -75,11 +73,12 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
 
   const isDSL = ['DSL', 'DEPUTY_DSL', 'SUPER_ADMIN', 'SCHOOL_ADMIN'].includes(userRole);
 
-  // Fetch staff list for assignment dropdown (simplified: all active users in tenant)
-  const staffList = isDSL ? await prisma.user.findMany({
-    where: { tenantId, isActive: true },
-    select: { id: true, name: true, role: true },
-  }) : [];
+  const staffList = isDSL
+    ? await prisma.user.findMany({
+        where: { tenantId, isActive: true },
+        select: { id: true, name: true, role: true },
+      })
+    : [];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
@@ -163,7 +162,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
             <CardContent>
               <form
                 action={async (formData: FormData) => {
-                  "use server";
+                  'use server';
                   const content = formData.get('content') as string;
                   await addCaseNote(concern.id, content, true);
                 }}
@@ -218,12 +217,12 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
               <CardContent>
                 <form
                   action={async (formData: FormData) => {
-                    "use server";
+                    'use server';
                     const actionType = formData.get('actionType') as string;
                     const description = formData.get('description') as string;
-                    const assignedToId = formData.get('assignedToId') as string || undefined;
-                    const dueDate = formData.get('dueDate') as string || undefined;
-                    const priority = formData.get('priority') as string || 'MEDIUM';
+                    const assignedToId = (formData.get('assignedToId') as string) || undefined;
+                    const dueDate = (formData.get('dueDate') as string) || undefined;
+                    const priority = (formData.get('priority') as string) || 'MEDIUM';
                     await addSafeguardingAction({
                       concernId: concern.id,
                       actionType,
@@ -281,7 +280,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
             </Card>
           )}
 
-                   {/* Actions List */}
+          {/* Actions List */}
           <Card className="shadow-school-card border-0">
             <CardHeader>
               <CardTitle>Actions</CardTitle>
@@ -317,7 +316,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
                         {action.status !== 'COMPLETED' && (
                           <form
                             action={async () => {
-                              "use server";
+                              'use server';
                               await completeAction(action.id, concern.id);
                             }}
                           >
@@ -383,7 +382,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
                   {/* Assign Form */}
                   <form
                     action={async (formData: FormData) => {
-                      "use server";
+                      'use server';
                       const assigneeId = formData.get('assigneeId') as string;
                       if (assigneeId) await assignCase(concern.id, assigneeId);
                     }}
@@ -410,7 +409,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
                   {/* Status Update Form */}
                   <form
                     action={async (formData: FormData) => {
-                      "use server";
+                      'use server';
                       const newStatus = formData.get('status') as string;
                       const notes = formData.get('notes') as string;
                       if (newStatus) await updateCaseStatus(concern.id, newStatus, notes);
@@ -438,35 +437,37 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
                     </div>
                     <Textarea name="notes" placeholder="Optional note about this status change" className="mt-2" />
                   </form>
+
+                  {/* Close Case Button */}
+                  {concern.status !== 'CLOSED' && (
+                    <form
+                      action={async (formData: FormData) => {
+                        'use server';
+                        const notes = formData.get('closureNotes') as string;
+                        await updateCaseStatus(concern.id, 'CLOSED', notes);
+                      }}
+                      className="space-y-2"
+                    >
+                      <input type="hidden" name="closureNotes" value="" />
+                      <Button
+                        type="submit"
+                        variant="destructive"
+                        className="w-full"
+                        onClick={(e) => {
+                          if (!confirm('Are you sure you want to close this case? This will finalize all actions.')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        Close Case
+                      </Button>
+                    </form>
+                  )}
                 </>
               )}
             </CardContent>
           </Card>
-              {/* Close Case Button – visible only if case is not already closed */}
-              {concern.status !== 'CLOSED' && (
-                <form
-                  action={async (formData: FormData) => {
-                    "use server";
-                    const notes = formData.get('closureNotes') as string;
-                    await updateCaseStatus(concern.id, 'CLOSED', notes);
-                  }}
-                  className="space-y-2"
-                >
-                  <input type="hidden" name="closureNotes" value="" />
-                  <Button
-                    type="submit"
-                    variant="destructive"
-                    className="w-full"
-                    onClick={(e) => {
-                      if (!confirm('Are you sure you want to close this case? This will finalize all actions.')) {
-                        e.preventDefault();
-                      }
-                    }}
-                  >
-                    Close Case
-                  </Button>
-                </form>
-              )}
+
           {/* Timeline */}
           <Card className="shadow-school-card border-0">
             <CardHeader>
