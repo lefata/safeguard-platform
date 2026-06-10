@@ -106,3 +106,32 @@ export async function createSafeguardingConcern(
   revalidatePath('/safeguarding');
   return concern;
 }
+export async function getSafeguardingConcerns(filters?: {
+  status?: string;
+  riskLevel?: string;
+  categoryId?: string;
+  studentId?: string;
+  assigneeId?: string;
+}) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+
+  return prisma.safeguardingConcern.findMany({
+    where: {
+      tenantId: (session.user as any).tenantId,
+      ...(filters?.status && { status: filters.status as any }),
+      ...(filters?.riskLevel && { riskLevel: filters.riskLevel as any }),
+      ...(filters?.categoryId && { categoryId: filters.categoryId }),
+      ...(filters?.studentId && { studentId: filters.studentId }),
+      ...(filters?.assigneeId && { assigneeId: filters.assigneeId }),
+    },
+    include: {
+      student: { select: { id: true, firstName: true, lastName: true, grade: true, photo: true } },
+      category: { select: { id: true, name: true } },
+      creator: { select: { id: true, name: true, role: true } },
+      assignee: { select: { id: true, name: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+  });
+}
