@@ -3,34 +3,36 @@ import type { Config } from "tailwindcss"
 const config: Config = {
   content: [
     "./src/**/*.{ts,tsx}",
+    // If you have any pages directly under app/ (outside src), add:
+    // "./app/**/*.{ts,tsx}",
   ],
   safelist: [
-  // Force all bg-school-* and text-school-* classes
-  {
-    pattern: /bg-school-/,
-    variants: ['hover', 'focus', 'active'],
-  },
-  {
-    pattern: /text-school-/,
-  },
-  {
-    pattern: /from-school-/,
-  },
-  {
-    pattern: /to-school-/,
-  },
-  {
-    pattern: /border-school-/,
-  },
-  {
-    pattern: /ring-school-/,
-  },
-  // Force the custom shadow and animation classes
-  'shadow-school-card',
-  'shadow-school-hover',
-  'shadow-soft',
-  'animate-fade-in',
-],
+    // Force all school colour utilities
+    {
+      pattern: /bg-school-/,
+      variants: ['hover', 'focus', 'active'],
+    },
+    {
+      pattern: /text-school-/,
+    },
+    {
+      pattern: /from-school-/,
+    },
+    {
+      pattern: /to-school-/,
+    },
+    {
+      pattern: /border-school-/,
+    },
+    {
+      pattern: /ring-school-/,
+    },
+    // Force custom shadows and animations
+    'shadow-school-card',
+    'shadow-school-hover',
+    'shadow-soft',
+    'animate-fade-in',
+  ],
   theme: {
     extend: {
       colors: {
@@ -45,6 +47,16 @@ const config: Config = {
           700: "#1d4ed8",
           800: "#1e40af",
           900: "#1e3a8a",
+        },
+        risk: {
+          low: "#f0fdf4",
+          "low-text": "#166534",
+          medium: "#fefce8",
+          "medium-text": "#854d0e",
+          high: "#fff7ed",
+          "high-text": "#9a3412",
+          critical: "#fef2f2",
+          "critical-text": "#991b1b",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -88,6 +100,16 @@ const config: Config = {
       boxShadow: {
         "school-card": "0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.04), 0 12px 24px rgba(0,0,0,0.04)",
         "school-hover": "0 0 0 1px rgba(59,130,246,0.1), 0 4px 6px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.06)",
+        soft: "0 2px 15px -3px rgba(0, 0, 0, 0.04), 0 10px 20px -2px rgba(0, 0, 0, 0.02)",
+      },
+      keyframes: {
+        "fade-in": {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "fade-in": "fade-in 0.3s ease-out",
       },
     },
   },
