@@ -1,6 +1,4 @@
 // src/lib/permissions.ts
-import { UserRole } from '@prisma/client'
-
 type Permission = 
   | 'view:safeguarding:all'
   | 'view:safeguarding:own'
@@ -29,9 +27,9 @@ type Permission =
   | 'manage:system'
   | 'view:audit'
   | 'manage:integrations'
-  | 'view:parent_portal'
+  | 'view:parent_portal';
 
-const rolePermissions: Record<UserRole, Permission[]> = {
+const rolePermissions: Record<string, Permission[]> = {
   SUPER_ADMIN: [
     'manage:system', 'view:audit', 'manage:integrations',
     'view:dashboard:executive', 'view:reports', 'export:reports',
@@ -84,23 +82,23 @@ const rolePermissions: Record<UserRole, Permission[]> = {
   PARENT: [
     'view:parent_portal',
   ],
+};
+
+export function hasPermission(role: string, permission: Permission): boolean {
+  return rolePermissions[role]?.includes(permission) ?? false;
 }
 
-export function hasPermission(role: UserRole, permission: Permission): boolean {
-  return rolePermissions[role]?.includes(permission) ?? false
+export function hasAnyPermission(role: string, permissions: Permission[]): boolean {
+  return permissions.some(p => hasPermission(role, p));
 }
 
-export function hasAnyPermission(role: UserRole, permissions: Permission[]): boolean {
-  return permissions.some(p => hasPermission(role, p))
+export function hasAllPermissions(role: string, permissions: Permission[]): boolean {
+  return permissions.every(p => hasPermission(role, p));
 }
 
-export function hasAllPermissions(role: UserRole, permissions: Permission[]): boolean {
-  return permissions.every(p => hasPermission(role, p))
+export function getPermissionsForRole(role: string): Permission[] {
+  return rolePermissions[role] || [];
 }
 
-export function getPermissionsForRole(role: UserRole): Permission[] {
-  return rolePermissions[role] || []
-}
-
-export { rolePermissions }
-export type { Permission }
+export { rolePermissions };
+export type { Permission };
