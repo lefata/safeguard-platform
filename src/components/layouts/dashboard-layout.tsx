@@ -95,7 +95,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile sidebar – fixed, high z‑index, backdrop */}
+      {/* Mobile sidebar overlay */}
       <div
         className={cn(
           "fixed inset-0 z-50 lg:hidden",
@@ -115,16 +115,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      {/* Desktop sidebar – fixed, left */}
+      {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col z-40">
         <div className="flex flex-col flex-grow border-r bg-white shadow-sm">
           <SidebarContent filteredNav={filteredNav} pathname={pathname} />
         </div>
       </div>
 
-      {/* Main content – offset by sidebar width on desktop */}
+      {/* Main content */}
       <div className="lg:pl-64">
-        {/* Sticky header with backdrop blur */}
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b shadow-sm">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-4">
@@ -154,8 +153,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-3 px-2 py-1.5">
-                    <Avatar className="h-9 w-9 ring-2 ring-school-100">
-                      <AvatarFallback className="bg-school-100 text-school-700 font-semibold text-sm">
+                    <Avatar className="h-9 w-9 ring-2 ring-blue-100">
+                      <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold text-sm">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
