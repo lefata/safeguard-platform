@@ -22,7 +22,7 @@ interface Action {
   concernId: string;
   actionType: string;
   description: string;
-  assignedTo?: { id: string; name: string | null } | null;  // allow null
+  assignedTo?: { id: string; name: string | null } | null;
   completedBy?: { id: string; name: string | null } | null;
   dueDate?: string | null;
   status: string;
@@ -32,7 +32,7 @@ interface Action {
 
 interface Staff {
   id: string;
-  name: string | null;   // allow null
+  name: string | null;
   role: string;
 }
 
@@ -40,12 +40,10 @@ export function ActionItem({
   action,
   staffList,
   isDSL,
-  concernId,
 }: {
   action: Action;
   staffList: Staff[];
   isDSL: boolean;
-  concernId: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -58,7 +56,7 @@ export function ActionItem({
 
   const handleSave = async () => {
     try {
-      await updateAction(action.id, concernId, {
+      await updateAction(action.id, action.concernId, {
         actionType: formData.actionType,
         description: formData.description,
         assignedToId: formData.assignedToId || undefined,
@@ -74,7 +72,7 @@ export function ActionItem({
 
   const handleComplete = async () => {
     try {
-      await completeAction(action.id, concernId);
+      await completeAction(action.id, action.concernId);
       toast.success("Action completed");
     } catch (err: any) {
       toast.error(err.message);
@@ -126,8 +124,8 @@ export function ActionItem({
                 <SelectContent>
                   {staffList.map((u) => (
                     <SelectItem key={u.id} value={u.id}>
-                    {u.name || "Unknown"} ({u.role})
-                   </SelectItem>
+                      {u.name || "Unknown"} ({u.role})
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -155,14 +153,14 @@ export function ActionItem({
           <div>
             <p className="font-medium text-sm">{action.description}</p>
             <p className="text-xs text-muted-foreground">
-                Type: {action.actionType} • Assigned to: {action.assignedTo?.name || "Unassigned"}
-                {action.dueDate && ` • Due: ${formatDate(action.dueDate)}`}
+              Type: {action.actionType} • Assigned to: {action.assignedTo?.name || "Unassigned"}
+              {action.dueDate && ` • Due: ${formatDate(action.dueDate)}`}
             </p>
             {action.status === "COMPLETED" && action.completedBy && (
-                <p className="text-xs text-green-600 mt-1">
+              <p className="text-xs text-green-600 mt-1">
                 ✅ Completed by {action.completedBy.name || "Unknown"} on {formatDate(action.completedAt!)}
-            </p>
-          )}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Badge
