@@ -281,7 +281,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
             </Card>
           )}
 
-                   {/* Actions List */}
+                            {/* Actions List */}
           <Card className="shadow-school-card border-0">
             <CardHeader>
               <CardTitle>Actions</CardTitle>
