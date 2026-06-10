@@ -202,3 +202,45 @@ div.bg-gradient-to-br {
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out !important;
 }
+/* ---------- Top Navbar specific ---------- */
+header nav a {
+  color: #4b5563 !important;
+  font-weight: 500 !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+header nav a:hover {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+header nav a.active,
+header nav a.bg-school-50 {
+  background-color: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+/* Main content area – wider and centered */
+main.max-w-screen-2xl {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+/* Make dropdowns and popovers have higher z-index */
+[data-radix-popper-content-wrapper] {
+  z-index: 60 !important;
+}
+
+/* Improve mobile menu */
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  color: #4b5563;
+}
+.mobile-menu-link.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
