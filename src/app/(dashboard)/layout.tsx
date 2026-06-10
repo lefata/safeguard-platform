@@ -1,6 +1,6 @@
 // src/app/(dashboard)/layout.tsx
-import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
+// Prevent static generation – all dashboard pages require auth
 export const dynamic = 'force-dynamic';
 
 export default function DashboardGroupLayout({
@@ -8,5 +8,8 @@ export default function DashboardGroupLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  // The actual layout (top navbar) is now in the root layout or a higher-level wrapper?
+  // Since we moved the navbar to the global layout, we no longer need a separate layout here.
+  // Just render children directly, or wrap with a simple div if needed.
+  return <>{children}</>;
 }
