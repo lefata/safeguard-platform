@@ -269,3 +269,42 @@ export async function assignCase(concernId: string, assigneeId: string) {
   revalidatePath(`/safeguarding/${concernId}`);
   return updated;
 }
+
+// Complete an action (assignee or DSL)
+export async function completeAction(actionId: string, concernId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+
+  const action = await prisma.safeguardingAction.findUnique({ where: { id: actionId } });
+  if (!action) throw new Error('Action not found');
+
+  const role = (session.user as any).role;
+  const userId = (session.user as any).id;
+
+  // Allow if DSL, or if user is the assigned person
+  const isDSL = ['DSL', 'DEPUTY_DSL', 'SUPER_ADMIN', 'SCHOOL_ADMIN'].includes(role);
+  const isAssignee = action.assignedToId === userId;
+
+  if (!isDSL && !isAssignee) throw new Error('Not authorized to complete this action');
+
+  const updated = await prisma.safeguardingAction.update({
+    where: { id: actionId },
+    data: {
+      status: 'COMPLETED',
+      completedAt: new Date(),
+      completedById: userId,
+    },
+  });
+
+  await prisma.caseTimelineEntry.create({
+    data: {
+      concernId: concernId,
+      actorId: userId,
+      action: 'ACTION_COMPLETED',
+      description: `Action "${action.actionType}" marked as completed`,
+    },
+  });
+
+  revalidatePath(`/safeguarding/${concernId}`);
+  return updated;
+}
