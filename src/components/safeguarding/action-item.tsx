@@ -32,7 +32,7 @@ interface Action {
 
 interface Staff {
   id: string;
-  name: string | null;
+  name: string | null;   // allow null
   role: string;
 }
 
