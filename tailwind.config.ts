@@ -3,24 +3,36 @@ import type { Config } from "tailwindcss"
 const config: Config = {
   content: [
     "./src/**/*.{ts,tsx}",
-    // If you have any pages directly under app/ (outside src), add:
+    // Add this if your pages are also directly under app/ (outside src)
     // "./app/**/*.{ts,tsx}",
   ],
- content: [
-  "./src/**/*.{ts,tsx}",
-],
-safelist: [
-  { pattern: /bg-school-/, variants: ['hover', 'focus', 'active'] },
-  { pattern: /text-school-/ },
-  { pattern: /from-school-/ },
-  { pattern: /to-school-/ },
-  { pattern: /border-school-/ },
-  { pattern: /ring-school-/ },
-  'shadow-school-card',
-  'shadow-school-hover',
-  'shadow-soft',
-  'animate-fade-in',
-],
+  safelist: [
+    // Force all school colour utilities
+    {
+      pattern: /bg-school-/,
+      variants: ['hover', 'focus', 'active'],
+    },
+    {
+      pattern: /text-school-/,
+    },
+    {
+      pattern: /from-school-/,
+    },
+    {
+      pattern: /to-school-/,
+    },
+    {
+      pattern: /border-school-/,
+    },
+    {
+      pattern: /ring-school-/,
+    },
+    // Force custom shadows and animations
+    'shadow-school-card',
+    'shadow-school-hover',
+    'shadow-soft',
+    'animate-fade-in',
+  ],
   theme: {
     extend: {
       colors: {
