@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { addCaseNote, addSafeguardingAction, updateCaseStatus, assignCase, completeAction } from '@/server-actions/safeguarding';
 import {
   Select,
   SelectContent,
@@ -280,7 +281,7 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
             </Card>
           )}
 
-          {/* Actions List */}
+                   {/* Actions List */}
           <Card className="shadow-school-card border-0">
             <CardHeader>
               <CardTitle>Actions</CardTitle>
@@ -299,14 +300,33 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
                           Type: {action.actionType} • Assigned to: {action.assignedTo?.name || 'Unassigned'}
                           {action.dueDate && ` • Due: ${formatDate(action.dueDate)}`}
                         </p>
+                        {action.status === 'COMPLETED' && action.completedBy && (
+                          <p className="text-xs text-green-600 mt-1">
+                            ✅ Completed by {action.completedBy.name} on {formatDate(action.completedAt!)}
+                          </p>
+                        )}
                       </div>
-                      <Badge variant={
-                        action.status === 'COMPLETED' ? 'success' :
-                        action.status === 'OVERDUE' ? 'destructive' :
-                        action.status === 'IN_PROGRESS' ? 'secondary' : 'secondary'
-                      }>
-                        {action.status.replace(/_/g, ' ')}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={
+                          action.status === 'COMPLETED' ? 'success' :
+                          action.status === 'OVERDUE' ? 'destructive' :
+                          'secondary'
+                        }>
+                          {action.status.replace(/_/g, ' ')}
+                        </Badge>
+                        {action.status !== 'COMPLETED' && (
+                          <form
+                            action={async () => {
+                              "use server";
+                              await completeAction(action.id, concern.id);
+                            }}
+                          >
+                            <Button variant="outline" size="sm" type="submit">
+                              Complete
+                            </Button>
+                          </form>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -422,7 +442,31 @@ export default async function SafeguardingCasePage({ params }: PageProps) {
               )}
             </CardContent>
           </Card>
-
+              {/* Close Case Button – visible only if case is not already closed */}
+              {concern.status !== 'CLOSED' && (
+                <form
+                  action={async (formData: FormData) => {
+                    "use server";
+                    const notes = formData.get('closureNotes') as string;
+                    await updateCaseStatus(concern.id, 'CLOSED', notes);
+                  }}
+                  className="space-y-2"
+                >
+                  <input type="hidden" name="closureNotes" value="" />
+                  <Button
+                    type="submit"
+                    variant="destructive"
+                    className="w-full"
+                    onClick={(e) => {
+                      if (!confirm('Are you sure you want to close this case? This will finalize all actions.')) {
+                        e.preventDefault();
+                      }
+                    }}
+                  >
+                    Close Case
+                  </Button>
+                </form>
+              )}
           {/* Timeline */}
           <Card className="shadow-school-card border-0">
             <CardHeader>
