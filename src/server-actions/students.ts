@@ -1,98 +1,117 @@
-// src/server-actions/students.ts
-'use server'
+'use server';
 
-import { auth } from '@/lib/auth'
-import prisma from '@/lib/prisma'
-import { z } from 'zod'
+import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 
-const importStudentSchema = z.object({
-  studentId: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  dateOfBirth: z.string(),
-  gender: z.string().optional(),
-  grade: z.string(),
-  homeroom: z.string().optional(),
-  house: z.string().optional(),
-  parentContacts: z.string().optional(), // JSON string
-})
+interface StudentRow {
+  studentId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  grade: string;
+  homeroom?: string;
+  house?: string;
+  gender?: string;
+  parentContacts?: string; // JSON string
+}
 
-export async function importStudents(data: z.infer<typeof importStudentSchema>[]) {
-  const session = await auth()
-  if (!session?.user) throw new Error('Not authenticated')
-  if (session.user.role !== 'SCHOOL_ADMIN' && session.user.role !== 'SUPER_ADMIN') {
-    throw new Error('Unauthorized')
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+export async function importStudentsFromCSV(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  if ((session.user as any).role !== 'SCHOOL_ADMIN' && (session.user as any).role !== 'SUPER_ADMIN') {
+    throw new Error('Unauthorized');
   }
 
-  const results = { success: 0, errors: 0, errorsList: [] as string[] }
+  const file = formData.get('csv') as string;
+  if (!file) throw new Error('No CSV data provided');
 
-  for (const row of data) {
+  const rows = file.split('\n').filter(row => row.trim() !== '');
+  const headers = parseCSVLine(rows[0]).map(h => h.trim());
+
+  const requiredHeaders = ['studentId', 'firstName', 'lastName', 'dateOfBirth', 'grade'];
+  const missing = requiredHeaders.filter(h => !headers.includes(h));
+  if (missing.length > 0) throw new Error(`Missing required columns: ${missing.join(', ')}`);
+
+  const students: StudentRow[] = [];
+  for (let i = 1; i < rows.length; i++) {
+    const values = parseCSVLine(rows[i]);
+    const rowData: any = {};
+    headers.forEach((header, index) => {
+      rowData[header] = values[index]?.replace(/^"|"$/g, '') || '';
+    });
+    students.push(rowData as StudentRow);
+  }
+
+  const tenantId = (session.user as any).tenantId;
+  let inserted = 0;
+  const errors: string[] = [];
+
+  for (const student of students) {
     try {
-      const validated = importStudentSchema.parse(row)
+      let parentContacts = [];
+      if (student.parentContacts) {
+        try {
+          parentContacts = JSON.parse(student.parentContacts);
+        } catch (e) {
+          errors.push(`Row ${student.studentId}: Invalid parentContacts JSON`);
+          continue;
+        }
+      }
+
       await prisma.student.upsert({
         where: {
           tenantId_studentId: {
-            tenantId: session.user.tenantId,
-            studentId: validated.studentId,
+            tenantId,
+            studentId: student.studentId,
           },
         },
         update: {
-          firstName: validated.firstName,
-          lastName: validated.lastName,
-          dateOfBirth: new Date(validated.dateOfBirth),
-          gender: validated.gender,
-          grade: validated.grade,
-          homeroom: validated.homeroom,
-          house: validated.house,
-          parentContacts: validated.parentContacts ? JSON.parse(validated.parentContacts) : [],
+          firstName: student.firstName,
+          lastName: student.lastName,
+          dateOfBirth: new Date(student.dateOfBirth),
+          grade: student.grade,
+          homeroom: student.homeroom || null,
+          house: student.house || null,
+          gender: student.gender || null,
+          parentContacts,
         },
         create: {
-          tenantId: session.user.tenantId,
-          studentId: validated.studentId,
-          firstName: validated.firstName,
-          lastName: validated.lastName,
-          dateOfBirth: new Date(validated.dateOfBirth),
-          gender: validated.gender,
-          grade: validated.grade,
-          homeroom: validated.homeroom,
-          house: validated.house,
-          parentContacts: validated.parentContacts ? JSON.parse(validated.parentContacts) : [],
+          tenantId,
+          studentId: student.studentId,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          dateOfBirth: new Date(student.dateOfBirth),
+          grade: student.grade,
+          homeroom: student.homeroom || null,
+          house: student.house || null,
+          gender: student.gender || null,
+          parentContacts,
         },
-      })
-      results.success++
-    } catch (error: any) {
-      results.errors++
-      results.errorsList.push(`Row ${row.studentId}: ${error.message}`)
+      });
+      inserted++;
+    } catch (err: any) {
+      errors.push(`Row ${student.studentId}: ${err.message}`);
     }
   }
 
-  return results
-}
-
-export async function getStudents(params?: {
-  grade?: string
-  homeroom?: string
-  search?: string
-  status?: string
-}) {
-  const session = await auth()
-  if (!session?.user) throw new Error('Not authenticated')
-
-  return prisma.student.findMany({
-    where: {
-      tenantId: session.user.tenantId,
-      isActive: params?.status !== 'WITHDRAWN',
-      ...(params?.grade && { grade: params.grade }),
-      ...(params?.homeroom && { homeroom: params.homeroom }),
-      ...(params?.search && {
-        OR: [
-          { firstName: { contains: params.search, mode: 'insensitive' } },
-          { lastName: { contains: params.search, mode: 'insensitive' } },
-          { studentId: { contains: params.search, mode: 'insensitive' } },
-        ],
-      }),
-    },
-    orderBy: { lastName: 'asc' },
-    take: 200,
-  })
+  return { inserted, errors };
 }
