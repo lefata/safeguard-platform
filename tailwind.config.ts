@@ -92,5 +92,25 @@ const config: Config = {
   },
   plugins: [require("tailwindcss-animate")],
 }
-
+safelist: [
+  {
+    pattern: /bg-school-/,
+    variants: ['hover', 'focus', 'active'],
+  },
+  {
+    pattern: /text-school-/,
+  },
+  {
+    pattern: /from-school-/,
+  },
+  {
+    pattern: /to-school-/,
+  },
+  {
+    pattern: /border-school-/,
+  },
+  {
+    pattern: /ring-school-/,
+  },
+],
 export default config
