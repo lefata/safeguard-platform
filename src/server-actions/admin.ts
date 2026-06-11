@@ -138,3 +138,27 @@ export async function updateSchoolSettings(data: {
   return updated;
 }
 
+
+export async function getUsersForTenant(tenantId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  const userRole = (session.user as any).role;
+  const userTenantId = (session.user as any).tenantId;
+
+  // Super admin can see any, school admin only their own
+  if (userRole !== 'SUPER_ADMIN' && (userRole !== 'SCHOOL_ADMIN' || userTenantId !== tenantId)) {
+    throw new Error('Unauthorized');
+  }
+
+  return prisma.user.findMany({
+    where: { tenantId, isActive: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
