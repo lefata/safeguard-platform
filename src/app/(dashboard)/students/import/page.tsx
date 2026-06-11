@@ -9,9 +9,9 @@ import { importStudentsFromCSV } from '@/server-actions/students';
 import { toast } from 'sonner';
 import { Upload, Download, FileText } from 'lucide-react';
 
-const CSV_TEMPLATE = 
-  'studentId,firstName,lastName,dateOfBirth,grade,homeroom,house,gender,parentContacts\n' +
-  'STU-2025-001,Jane,Smith,2010-05-15,9,9A,Red,F,"[{""name"":""Alice Smith"",""relation"":""Mother"",""email"":""alice@example.com"",""phone"":""+44 7700 900000""}]"';
+const CSV_TEMPLATE =
+  'studentId,firstName,lastName,dateOfBirth,grade,homeroom,house,gender,parent1Name,parent1Relation,parent1Email,parent1Phone,parent2Name,parent2Relation,parent2Email,parent2Phone\n' +
+  'STU-2025-001,Jane,Smith,2010-05-15,9,9A,Red,F,Alice Smith,Mother,alice@example.com,+44 7700 900000,John Smith,Father,john@example.com,+44 7700 900001';
 
 export default function ImportStudentsPage() {
   const [csv, setCsv] = useState('');
@@ -79,7 +79,9 @@ export default function ImportStudentsPage() {
         <CardHeader>
           <CardTitle>Paste CSV Data</CardTitle>
           <CardDescription>
-            The first row must contain the column headers (case‑sensitive).
+              Required columns: studentId, firstName, lastName, dateOfBirth, grade.<br />
+              Optional: homeroom, house, gender.<br />
+              Parent contacts: parent1Name, parent1Relation, parent1Email, parent1Phone, (and parent2…).
           </CardDescription>
         </CardHeader>
         <CardContent>
