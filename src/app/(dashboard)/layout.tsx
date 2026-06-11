@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import DashboardLayout from "@/components/layouts/dashboard-layout";
 
 export const dynamic = 'force-dynamic';
 
