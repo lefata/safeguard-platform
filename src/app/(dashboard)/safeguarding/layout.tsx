@@ -1,5 +1,5 @@
 // src/app/(dashboard)/layout.tsx
-import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import DashboardLayout from "@/components/layouts/dashboard-layout";
 
 // Prevent static generation – all dashboard pages require auth
 export const dynamic = 'force-dynamic';
