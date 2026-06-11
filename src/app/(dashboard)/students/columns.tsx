@@ -5,6 +5,32 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import Link from "next/link";
+import { RiskBadge } from '@/components/ui/RiskBadge';
+import { ColumnDef } from "@tanstack/react-table"
+
+export const columns: ColumnDef<Student>[] = [
+  {
+    accessorKey: "name",
+    header: "Student Name",
+  },
+  {
+    accessorKey: "riskLevel",
+    header: "Risk Level",
+    cell: ({ row }) => (
+      <RiskBadge level={row.getValue("riskLevel")} />
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <StatusIndicator 
+        level={row.getValue("status")} 
+        size="sm"
+      />
+    ),
+  },
+]
 
 type Student = {
   id: string;
