@@ -1,35 +1,36 @@
-// Client component for rendering provided items
-export function SafeguardingListClient({ items }) {
-  return (
-    <div className="space-y-4">
-      {items.map((item) => (
-        <SchoolCard key={item.id}>
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-lg font-semibold">{item.title}</h3>
-              <p className="text-school-text-secondary mt-1">{item.description}</p>
-            </div>
-            <RiskBadge level={item.riskLevel} />
-          </div>
-        </SchoolCard>
-      ))}
-    </div>
-  );
+// src/components/safeguarding/safeguarding-list.tsx
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { RiskBadge } from "@/components/ui/RiskBadge";
+import { AlertTriangle, Shield } from "lucide-react";
+
+interface SafeguardingConcern {
+  id: string;
+  title: string;
+  description?: string;
+  riskLevel: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  student: {
+    firstName: string;
+    lastName: string;
+    grade: string;
+  };
+  category: {
+    name: string;
+  };
+  createdAt: string;
+  status: string;
 }
 
-// Server component / async function fetching concerns
-export async function SafeguardingListServer({
-  tenantId,
-  userRole,
-  userId,
-}: {
-  tenantId: string;
-  userRole: string;
-  userId: string;
-}) {
-  const concerns = await getSafeguardingConcerns();
+interface SafeguardingListProps {
+  concerns: SafeguardingConcern[];
+}
 
-  if (concerns.length === 0) {
+export function SafeguardingList({ concerns }: SafeguardingListProps) {
+  if (!concerns || concerns.length === 0) {
     return (
       <Card className="shadow-school-card border-0">
         <CardContent className="py-12 text-center text-muted-foreground">
@@ -47,9 +48,9 @@ export async function SafeguardingListServer({
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-start gap-3">
                 <div className="mt-1">
-                  {concern.riskLevel === 'CRITICAL' ? (
+                  {concern.riskLevel === "CRITICAL" ? (
                     <AlertTriangle className="h-5 w-5 text-red-500" />
-                  ) : concern.riskLevel === 'HIGH' ? (
+                  ) : concern.riskLevel === "HIGH" ? (
                     <AlertTriangle className="h-5 w-5 text-orange-500" />
                   ) : (
                     <Shield className="h-5 w-5 text-blue-500" />
@@ -61,21 +62,25 @@ export async function SafeguardingListServer({
                     {concern.student.firstName} {concern.student.lastName} • Grade {concern.student.grade}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {concern.category.name} • {formatDateShort(concern.createdAt)}
+                    {concern.category.name} • {new Date(concern.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Badge
                   variant={
-                    concern.riskLevel === 'CRITICAL' ? 'critical' :
-                    concern.riskLevel === 'HIGH' ? 'high' :
-                    concern.riskLevel === 'MEDIUM' ? 'medium' : 'low'
+                    concern.riskLevel === "CRITICAL"
+                      ? "critical"
+                      : concern.riskLevel === "HIGH"
+                      ? "high"
+                      : concern.riskLevel === "MEDIUM"
+                      ? "medium"
+                      : "low"
                   }
                 >
                   {concern.riskLevel}
                 </Badge>
-                <Badge variant="outline">{concern.status.replace('_', ' ')}</Badge>
+                <Badge variant="outline">{concern.status.replace(/_/g, " ")}</Badge>
               </div>
             </CardContent>
           </Card>
