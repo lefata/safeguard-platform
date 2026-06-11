@@ -1,8 +1,22 @@
-// src/components/safeguarding/case-timeline.tsx
 import React from "react";
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
 
-export function CaseTimeline({ events }) {
+interface TimelineEntry {
+  id: string;
+  action: string;
+  description?: string | null;
+  createdAt: Date;
+  actor: {
+    id: string;
+    name: string | null;
+  };
+}
+
+export function CaseTimeline({ events }: { events?: any[] }) {
+  if (!events || events.length === 0) {
+    return <p className="text-sm text-muted-foreground">No timeline entries yet.</p>;
+  }
+
   return (
     <div className="space-y-4">
       {events.map((event) => (
@@ -22,18 +36,8 @@ export function CaseTimeline({ events }) {
   );
 }
 
-interface TimelineEntry {
-  id: string;
-  action: string;
-  description?: string | null;
-  createdAt: Date;
-  actor: {
-    id: string;
-    name: string | null;
-  };
-}
-
-export function CaseTimeline({ entries }: { entries: TimelineEntry[] }) {
+// Optionally export the list version with different name if needed
+export function CaseTimelineList({ entries }: { entries: TimelineEntry[] }) {
   if (!entries || entries.length === 0) {
     return <p className="text-sm text-muted-foreground">No timeline entries yet.</p>;
   }
