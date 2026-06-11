@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
   Select,
   SelectContent,
@@ -113,9 +112,14 @@ export default function AdminPage() {
   const [locale, setLocale] = useState("en-GB");
   const [savingSettings, setSavingSettings] = useState(false);
 
-  // Users list for the selected/own school
+  // Users list
   const [users, setUsers] = useState<{ id: string; name: string | null; email: string; role: string; createdAt: string }[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+
+  // Password reset
+  const [resetUserId, setResetUserId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [resettingPassword, setResettingPassword] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -136,7 +140,6 @@ export default function AdminPage() {
             setLocale(tenant.locale || "en-GB");
           }
           setSelectedTenantForUser(userTenantId);
-          // Load users for the school admin's own school
           loadUsers(userTenantId);
         }
       } catch (error: any) {
@@ -149,18 +152,17 @@ export default function AdminPage() {
   }, [userRole, userTenantId, session]);
 
   const loadUsers = async (tenantId: string) => {
-  if (!tenantId) return;
-  setLoadingUsers(true);
-  try {
-    const data = await getUsersForTenant(tenantId);
-    // Convert createdAt Date to string
-    setUsers(data.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })));
-  } catch (error: any) {
-    toast.error("Could not load users: " + error.message);
-  } finally {
-    setLoadingUsers(false);
-  }
-};
+    if (!tenantId) return;
+    setLoadingUsers(true);
+    try {
+      const data = await getUsersForTenant(tenantId);
+      setUsers(data.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })));
+    } catch (error: any) {
+      toast.error("Could not load users: " + error.message);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   const loadTenantSettings = async (tenantId: string) => {
     if (!tenantId) return;
@@ -221,7 +223,6 @@ export default function AdminPage() {
       setUserRoleState("");
       setUserPassword("");
       if (userRole === "SUPER_ADMIN") setSelectedTenantForUser("");
-      // Refresh users list for the relevant school
       loadUsers(tenantId);
     } catch (error: any) {
       toast.error(error.message);
@@ -229,11 +230,6 @@ export default function AdminPage() {
       setCreatingUser(false);
     }
   };
-
-  // Password reset state
-  const [resetUserId, setResetUserId] = useState<string | null>(null);
-  const [newPassword, setNewPassword] = useState("");
-  const [resettingPassword, setResettingPassword] = useState(false);
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,22 +256,23 @@ export default function AdminPage() {
   };
 
   const handleResetPassword = async (userId: string) => {
-  if (!newPassword || newPassword.length < 6) {
-    toast.error("Password must be at least 6 characters.");
-    return;
-  }
-  setResettingPassword(true);
-  try {
-    await resetUserPassword(userId, newPassword);
-    toast.success("Password reset successfully.");
-    setResetUserId(null);
-    setNewPassword("");
-  } catch (error: any) {
-    toast.error(error.message);
-  } finally {
-    setResettingPassword(false);
-  }
-};
+    if (!newPassword || newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+    setResettingPassword(true);
+    try {
+      await resetUserPassword(userId, newPassword);
+      toast.success("Password reset successfully.");
+      setResetUserId(null);
+      setNewPassword("");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
   if (!session) return null;
 
   return (
@@ -600,53 +597,54 @@ export default function AdminPage() {
             <div className="text-center text-muted-foreground py-4">No users found.</div>
           ) : (
             <Table>
-  <TableHeader>
-    <TableRow>
-      <TableHead>Name</TableHead>
-      <TableHead>Email</TableHead>
-      <TableHead>Role</TableHead>
-      <TableHead className="text-right">Created</TableHead>
-      <TableHead className="text-right">Actions</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    {users.map((user) => (
-      <TableRow key={user.id}>
-        <TableCell>{user.name || "—"}</TableCell>
-        <TableCell>{user.email}</TableCell>
-        <TableCell>
-          <Badge variant="outline">{user.role.replace(/_/g, " ")}</Badge>
-        </TableCell>
-        <TableCell className="text-right text-xs text-muted-foreground">
-          {formatDateShort(user.createdAt)}
-        </TableCell>
-        <TableCell className="text-right">
-          {resetUserId === user.id ? (
-            <div className="flex items-center gap-2">
-              <Input
-                type="password"
-                placeholder="New password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-28 h-8 text-xs"
-              />
-              <Button size="sm" onClick={() => handleResetPassword(user.id)} disabled={resettingPassword}>
-                Save
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setResetUserId(null)}>
-                Cancel
-              </Button>
-            </div>
-          ) : (
-            <Button size="sm" variant="outline" onClick={() => { setResetUserId(user.id); setNewPassword(""); }}>
-              Reset Password
-            </Button>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead className="text-right">Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.name || "—"}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{user.role.replace(/_/g, " ")}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground">
+                      {formatDateShort(user.createdAt)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {resetUserId === user.id ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="password"
+                            placeholder="New password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="w-28 h-8 text-xs"
+                          />
+                          <Button size="sm" onClick={() => handleResetPassword(user.id)} disabled={resettingPassword}>
+                            Save
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setResetUserId(null)}>
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button size="sm" variant="outline" onClick={() => { setResetUserId(user.id); setNewPassword(""); }}>
+                          Reset Password
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
-        </TableCell>
-      </TableRow>
-    ))}
-  </TableBody>
-</Table>
         </CardContent>
       </Card>
     </div>
