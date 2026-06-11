@@ -1,5 +1,26 @@
 // src/components/safeguarding/case-timeline.tsx
 import React from "react";
+import { StatusIndicator } from '@/components/ui/StatusIndicator';
+
+export function CaseTimeline({ events }) {
+  return (
+    <div className="space-y-4">
+      {events.map((event) => (
+        <div key={event.id} className="flex gap-4">
+          <div className="flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full bg-school-primary" />
+            <div className="h-12 w-0.5 bg-school-border-light" />
+          </div>
+          <div className="pb-4">
+            <p className="font-semibold text-school-text-primary">{event.title}</p>
+            <p className="text-sm text-school-text-secondary mt-1">{event.date}</p>
+            <StatusIndicator level={event.riskLevel} size="sm" className="mt-2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 interface TimelineEntry {
   id: string;
