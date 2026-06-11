@@ -4,8 +4,8 @@
 @tailwind utilities;
 
 /* Import school theme */
-@import './school-theme.css';
-@import './enhanced-colors.css';
+
+
 
 @layer base {
   :root {
