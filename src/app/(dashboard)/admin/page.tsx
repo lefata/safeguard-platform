@@ -14,6 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   createSchool,
@@ -21,8 +30,10 @@ import {
   getAllTenants,
   getTenantById,
   updateSchoolSettings,
+  getUsersForTenant,
 } from "@/server-actions/admin";
 import { School, UserPlus, Loader2, Palette } from "lucide-react";
+import { formatDateShort } from "@/lib/utils";
 
 const userRoles = [
   { value: "SCHOOL_ADMIN", label: "School Admin" },
@@ -36,12 +47,41 @@ const userRoles = [
   { value: "READ_ONLY_AUDITOR", label: "Read-Only Auditor" },
 ];
 
+const timezones = [
+  "UTC",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Africa/Lagos",
+  "Asia/Dubai",
+  "Asia/Kolkata",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Australia/Sydney",
+  "Pacific/Auckland",
+];
+
+const locales = [
+  "en-GB",
+  "en-US",
+  "fr-FR",
+  "es-ES",
+  "de-DE",
+  "pt-PT",
+  "ar-SA",
+  "zh-CN",
+  "ja-JP",
+];
+
 export default function AdminPage() {
   const { data: session } = useSession();
   const userRole = (session?.user as any)?.role;
   const userTenantId = (session?.user as any)?.tenantId;
 
-  // Common state
   const [loading, setLoading] = useState(true);
 
   // Schools list (super admin)
@@ -60,7 +100,7 @@ export default function AdminPage() {
   const [userPassword, setUserPassword] = useState("");
   const [creatingUser, setCreatingUser] = useState(false);
 
-  // School settings (both roles)
+  // School settings
   const [selectedTenantForSettings, setSelectedTenantForSettings] = useState("");
   const [settingsName, setSettingsName] = useState("");
   const [logo, setLogo] = useState("");
@@ -71,7 +111,11 @@ export default function AdminPage() {
   const [locale, setLocale] = useState("en-GB");
   const [savingSettings, setSavingSettings] = useState(false);
 
-  // Load initial data based on role
+  // Users list for the selected/own school
+  const [users, setUsers] = useState<{ id: string; name: string | null; email: string; role: string; createdAt: string }[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  // Load initial data
   useEffect(() => {
     async function load() {
       try {
@@ -79,7 +123,6 @@ export default function AdminPage() {
           const data = await getAllTenants();
           setTenants(data);
         } else if (userRole === "SCHOOL_ADMIN" && userTenantId) {
-          // Load the school's current settings
           const tenant = await getTenantById(userTenantId);
           if (tenant) {
             setSettingsName(tenant.name || "");
@@ -90,8 +133,9 @@ export default function AdminPage() {
             setTimezone(tenant.timezone || "UTC");
             setLocale(tenant.locale || "en-GB");
           }
-          // For user creation, no tenant selection needed (fixed)
           setSelectedTenantForUser(userTenantId);
+          // Load users for the school admin's own school
+          loadUsers(userTenantId);
         }
       } catch (error: any) {
         toast.error("Failed to load data: " + error.message);
@@ -102,7 +146,19 @@ export default function AdminPage() {
     if (session) load();
   }, [userRole, userTenantId, session]);
 
-  // When super admin selects a tenant for settings, load its details
+  const loadUsers = async (tenantId: string) => {
+    if (!tenantId) return;
+    setLoadingUsers(true);
+    try {
+      const data = await getUsersForTenant(tenantId);
+      setUsers(data);
+    } catch (error: any) {
+      toast.error("Could not load users: " + error.message);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
   const loadTenantSettings = async (tenantId: string) => {
     if (!tenantId) return;
     try {
@@ -116,6 +172,7 @@ export default function AdminPage() {
         setTimezone(tenant.timezone || "UTC");
         setLocale(tenant.locale || "en-GB");
       }
+      loadUsers(tenantId);
     } catch (error: any) {
       toast.error("Could not load school settings: " + error.message);
     }
@@ -161,6 +218,8 @@ export default function AdminPage() {
       setUserRoleState("");
       setUserPassword("");
       if (userRole === "SUPER_ADMIN") setSelectedTenantForUser("");
+      // Refresh users list for the relevant school
+      loadUsers(tenantId);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -456,20 +515,34 @@ export default function AdminPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="timezone">Timezone</Label>
-                <Input
-                  id="timezone"
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
-                />
+                <Label>Timezone</Label>
+                <Select value={timezone} onValueChange={setTimezone}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timezones.map((tz) => (
+                      <SelectItem key={tz} value={tz}>
+                        {tz}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <Label htmlFor="locale">Locale</Label>
-                <Input
-                  id="locale"
-                  value={locale}
-                  onChange={(e) => setLocale(e.target.value)}
-                />
+                <Label>Locale</Label>
+                <Select value={locale} onValueChange={setLocale}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select locale" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locales.map((l) => (
+                      <SelectItem key={l} value={l}>
+                        {l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="flex justify-end">
@@ -484,6 +557,48 @@ export default function AdminPage() {
               </Button>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Users List */}
+      <Card className="shadow-school-card border-0">
+        <CardHeader>
+          <CardTitle>Users in {userRole === "SCHOOL_ADMIN" ? "Your School" : "Selected School"}</CardTitle>
+          <CardDescription>
+            {users.length} active user(s) found.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loadingUsers ? (
+            <div className="text-center py-4">Loading users...</div>
+          ) : users.length === 0 ? (
+            <div className="text-center text-muted-foreground py-4">No users found.</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead className="text-right">Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.name || "—"}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{user.role.replace(/_/g, " ")}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground">
+                      {formatDateShort(user.createdAt)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
