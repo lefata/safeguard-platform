@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-const mainNavigation = [
+const navigation = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["*"] },
   {
     title: "Safeguarding",
@@ -71,27 +71,14 @@ const mainNavigation = [
     title: "Admin",
     href: "/admin",
     icon: Settings,
-    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"],
-  },
-  { title: "Admin", href: "/admin", icon: Settings, roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: FileText,
-    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "DSL", "DEPUTY_DSL", "PRINCIPAL", "READ_ONLY_AUDITOR"],
-  },
-  {
-    title: "Admin",
-    href: "/admin",
-    icon: Settings,
-    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"],   // only these roles see the admin link
+    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"],   // <-- only these roles see it
   },
 ];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const userRole = (session?.user as any)?.role || "TEACHER";
   const userName = session?.user?.name || "User";
@@ -102,58 +89,66 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     .join("")
     .toUpperCase();
 
-  const filteredNav = mainNavigation.filter(
+  const filteredNav = navigation.filter(
     (item) => item.roles.includes("*") || item.roles.includes(userRole)
   );
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ========== TOP NAVBAR ========== */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b shadow-sm">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo + Desktop links */}
-            <div className="flex items-center gap-8">
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-school-500 to-school-700 flex items-center justify-center shadow-sm">
-                  <Shield className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-bold text-xl text-school-900 hidden sm:block">Safeguard</span>
-              </Link>
+      {/* Mobile sidebar overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 lg:hidden",
+          sidebarOpen ? "block" : "hidden"
+        )}
+      >
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+        <div className="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl border-r animate-in slide-in-from-left duration-300">
+          <SidebarContent
+            filteredNav={filteredNav}
+            pathname={pathname}
+            onClose={() => setSidebarOpen(false)}
+          />
+        </div>
+      </div>
 
-              {/* Desktop horizontal nav */}
-              <nav className="hidden lg:flex items-center gap-1">
-                {filteredNav.map((item) => {
-                  const isActive = pathname.startsWith(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors",
-                        isActive
-                          ? "bg-school-50 text-school-700"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {item.title}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col z-40">
+        <div className="flex flex-col flex-grow border-r bg-white shadow-sm">
+          <SidebarContent filteredNav={filteredNav} pathname={pathname} />
+        </div>
+      </div>
 
-            {/* Right side: search, notifications, user */}
+      {/* Main content */}
+      <div className="lg:pl-64">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b shadow-sm">
+          <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-2 bg-muted/60 rounded-xl px-3 py-2 ring-1 ring-border/50 focus-within:ring-school-500 focus-within:ring-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <div className="hidden sm:flex items-center gap-2 bg-muted/60 rounded-xl px-3 py-2 ring-1 ring-border/50 hover:ring-school-300 transition-all focus-within:ring-school-500 focus-within:ring-2">
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   type="search"
-                  placeholder="Search..."
-                  className="bg-transparent border-none outline-none text-sm w-40 lg:w-64 placeholder:text-muted-foreground"
+                  placeholder="Search students, concerns..."
+                  className="bg-transparent border-none outline-none text-sm w-64 placeholder:text-muted-foreground"
                 />
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              {/* Debug: show current role */}
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium hidden sm:block">
+                Role: {userRole.replace(/_/g, " ")}
+              </span>
 
               <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
                 <Bell className="h-5 w-5" />
@@ -205,47 +200,74 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {/* Mobile menu button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Mobile navigation dropdown */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-t bg-white p-4 space-y-2">
-            {filteredNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors",
-                  pathname.startsWith(item.href)
-                    ? "bg-school-50 text-school-700"
-                    : "text-muted-foreground hover:bg-muted"
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.title}
-              </Link>
-            ))}
-          </div>
-        )}
-      </header>
-
-      {/* ========== MAIN CONTENT ========== */}
-      <main className="max-w-screen-2xl mx-auto p-6 lg:p-8 animate-fade-in">
-        {children}
-      </main>
+        <main className="p-6 lg:p-8 animate-fade-in">{children}</main>
+      </div>
     </div>
+  );
+}
+
+function SidebarContent({
+  filteredNav,
+  pathname,
+  onClose,
+}: {
+  filteredNav: typeof navigation;
+  pathname: string;
+  onClose?: () => void;
+}) {
+  return (
+    <>
+      <div className="flex h-16 items-center gap-3 px-6 border-b">
+        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-school-500 to-school-700 flex items-center justify-center shadow-sm">
+          <Shield className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <span className="font-bold text-lg text-school-900">Safeguard</span>
+          <span className="text-xs text-muted-foreground block -mt-0.5">Student Safety</span>
+        </div>
+        {onClose && (
+          <Button variant="ghost" size="icon" className="ml-auto" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        )}
+      </div>
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {filteredNav.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onClose}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
+                isActive
+                  ? "bg-school-50 text-school-700 shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <item.icon
+                className={cn(
+                  "h-5 w-5 transition-colors",
+                  isActive
+                    ? "text-school-600"
+                    : "text-muted-foreground group-hover:text-foreground"
+                )}
+              />
+              {item.title}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="p-4 border-t">
+        <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+          {new Date().getFullYear()} © Safeguard
+        </div>
+      </div>
+    </>
   );
 }
