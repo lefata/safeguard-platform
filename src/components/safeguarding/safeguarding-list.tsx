@@ -1,14 +1,5 @@
-// src/components/safeguarding/safeguarding-list.tsx
-import { getSafeguardingConcerns } from '@/server-actions/safeguarding';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { formatDateShort } from '@/lib/utils';
-import Link from 'next/link';
-import { Shield, AlertTriangle } from 'lucide-react';
-import { RiskBadge } from '@/components/ui/RiskBadge';
-import { SchoolCard } from '@/components/ui/SchoolCard';
-
-export function SafeguardingList({ items }) {
+// Client component for rendering provided items
+export function SafeguardingListClient({ items }) {
   return (
     <div className="space-y-4">
       {items.map((item) => (
@@ -26,7 +17,8 @@ export function SafeguardingList({ items }) {
   );
 }
 
-export async function SafeguardingList({
+// Server component / async function fetching concerns
+export async function SafeguardingListServer({
   tenantId,
   userRole,
   userId,
@@ -35,7 +27,6 @@ export async function SafeguardingList({
   userRole: string;
   userId: string;
 }) {
-  // Fetch concerns (server action already filters by tenant)
   const concerns = await getSafeguardingConcerns();
 
   if (concerns.length === 0) {
@@ -51,11 +42,7 @@ export async function SafeguardingList({
   return (
     <div className="space-y-4">
       {concerns.map((concern) => (
-        <Link
-          key={concern.id}
-          href={`/safeguarding/${concern.id}`}
-          className="block"
-        >
+        <Link key={concern.id} href={`/safeguarding/${concern.id}`} className="block">
           <Card className="shadow-school-card border-0 hover:shadow-school-hover transition-shadow cursor-pointer">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-start gap-3">
@@ -79,11 +66,13 @@ export async function SafeguardingList({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={
-                  concern.riskLevel === 'CRITICAL' ? 'critical' :
-                  concern.riskLevel === 'HIGH' ? 'high' :
-                  concern.riskLevel === 'MEDIUM' ? 'medium' : 'low'
-                }>
+                <Badge
+                  variant={
+                    concern.riskLevel === 'CRITICAL' ? 'critical' :
+                    concern.riskLevel === 'HIGH' ? 'high' :
+                    concern.riskLevel === 'MEDIUM' ? 'medium' : 'low'
+                  }
+                >
                   {concern.riskLevel}
                 </Badge>
                 <Badge variant="outline">{concern.status.replace('_', ' ')}</Badge>
