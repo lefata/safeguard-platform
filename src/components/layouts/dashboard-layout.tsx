@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -20,7 +22,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex h-screen bg-school-bg">
-      {/* Sidebar */}
       <aside className="w-64 bg-school-surface border-r border-school-border-light flex flex-col">
         <div className="p-6 border-b border-school-border-light flex items-center justify-between">
           <h1 className="text-xl font-bold text-school-primary">SafeGuard</h1>
@@ -46,19 +47,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           })}
         </nav>
       </aside>
-
-      {/* Main content */}
       <main className="flex-1 flex flex-col overflow-auto">
-        {/* Header */}
         <header className="bg-school-primary text-white p-4 shadow-school-elevated flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Dashboard</h2>
-          {/* Additional header items can go here */}
         </header>
-
-        {/* Content area */}
-        <section className="flex-1 p-6 bg-school-bg overflow-y-auto">
-          {children}
-        </section>
+        <section className="flex-1 p-6 bg-school-bg overflow-y-auto">{children}</section>
       </main>
     </div>
   );
