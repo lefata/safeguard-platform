@@ -1,11 +1,12 @@
+// src/components/safeguarding/case-timeline.tsx
 import React from "react";
-import { StatusIndicator } from '@/components/ui/StatusIndicator';
+import { StatusIndicator } from "@/components/ui/StatusIndicator";
 
 interface TimelineEntry {
   id: string;
-  title: string;
-  date: string;
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  title?: string;
+  date?: string;
+  riskLevel?: "low" | "medium" | "high" | "critical";
   action?: string;
   description?: string | null;
   createdAt?: Date;
@@ -35,24 +36,14 @@ export function CaseTimeline({ entries }: CaseTimelineProps) {
           <div className="pb-4">
             {entry.title && <p className="font-semibold text-school-text-primary">{entry.title}</p>}
             {entry.date && <p className="text-sm text-school-text-secondary mt-1">{entry.date}</p>}
-            {entry.riskLevel && (
-              <StatusIndicator level={entry.riskLevel} size="sm" className="mt-2" />
-            )}
-            {entry.action && (
-              <p className="text-muted-foreground">{entry.action}</p>
-            )}
-            {entry.description && (
-              <p className="text-xs text-muted-foreground">{entry.description}</p>
-            )}
+            {entry.riskLevel && <StatusIndicator level={entry.riskLevel} size="sm" className="mt-2" />}
+            {entry.action && <p className="text-muted-foreground">{entry.action}</p>}
+            {entry.description && <p className="text-xs text-muted-foreground">{entry.description}</p>}
             {entry.createdAt && (
-              <p className="text-xs text-gray-400">
-                {new Date(entry.createdAt).toLocaleString()}
-              </p>
+              <p className="text-xs text-gray-400">{new Date(entry.createdAt).toLocaleString()}</p>
             )}
             {entry.actor && (
-              <p className="text-xs text-muted-foreground font-medium">
-                {entry.actor.name || "Unknown"}
-              </p>
+              <p className="text-xs text-muted-foreground font-medium">{entry.actor.name || "Unknown"}</p>
             )}
           </div>
         </div>
