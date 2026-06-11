@@ -85,3 +85,47 @@ export async function getAllTenants() {
     orderBy: { name: 'asc' },
   });
 }
+
+export async function updateSchoolSettings(data: {
+  tenantId: string;
+  name?: string;
+  logo?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  address?: string;
+  timezone?: string;
+  locale?: string;
+}) {
+  const session = await requireSuperAdmin(); // actually allow both SUPER_ADMIN and SCHOOL_ADMIN
+  // We'll allow if role is SUPER_ADMIN, or if the user is SCHOOL_ADMIN of that tenant.
+  const userRole = (session.user as any).role;
+  const userTenantId = (session.user as any).tenantId;
+
+  if (userRole !== 'SUPER_ADMIN' && (userRole !== 'SCHOOL_ADMIN' || userTenantId !== data.tenantId)) {
+    throw new Error('Unauthorized');
+  }
+
+  const tenant = await prisma.tenant.findUnique({ where: { id: data.tenantId } });
+  if (!tenant) throw new Error('School not found');
+
+  const updated = await prisma.tenant.update({
+    where: { id: data.tenantId },
+    data: {
+      name: data.name !== undefined ? data.name : undefined,
+      logo: data.logo !== undefined ? data.logo : undefined,
+      primaryColor: data.primaryColor !== undefined ? data.primaryColor : undefined,
+      secondaryColor: data.secondaryColor !== undefined ? data.secondaryColor : undefined,
+      address: data.address !== undefined ? data.address : undefined,
+      timezone: data.timezone !== undefined ? data.timezone : undefined,
+      locale: data.locale !== undefined ? data.locale : undefined,
+    },
+  });
+
+  revalidatePath('/admin');
+  return updated;
+}
+export async function getCurrentTenantSettings() {
+  const session = await requireSuperAdmin(); // but we'll allow any authenticated user? Actually just school admin and super admin.
+  const userTenantId = (session.user as any).tenantId;
+  return prisma.tenant.findUnique({ where: { id: userTenantId } });
+}
