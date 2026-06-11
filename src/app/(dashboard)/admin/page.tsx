@@ -147,17 +147,18 @@ export default function AdminPage() {
   }, [userRole, userTenantId, session]);
 
   const loadUsers = async (tenantId: string) => {
-    if (!tenantId) return;
-    setLoadingUsers(true);
-    try {
-      const data = await getUsersForTenant(tenantId);
-      setUsers(data);
-    } catch (error: any) {
-      toast.error("Could not load users: " + error.message);
-    } finally {
-      setLoadingUsers(false);
-    }
-  };
+  if (!tenantId) return;
+  setLoadingUsers(true);
+  try {
+    const data = await getUsersForTenant(tenantId);
+    // Convert createdAt Date to string
+    setUsers(data.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })));
+  } catch (error: any) {
+    toast.error("Could not load users: " + error.message);
+  } finally {
+    setLoadingUsers(false);
+  }
+};
 
   const loadTenantSettings = async (tenantId: string) => {
     if (!tenantId) return;
