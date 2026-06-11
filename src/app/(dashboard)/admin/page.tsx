@@ -228,6 +228,11 @@ export default function AdminPage() {
     }
   };
 
+  // Password reset state
+  const [resetUserId, setResetUserId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [resettingPassword, setResettingPassword] = useState(false);
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     const tenantId = userRole === "SUPER_ADMIN" ? selectedTenantForSettings : userTenantId;
