@@ -5,6 +5,26 @@ import { Badge } from '@/components/ui/badge';
 import { formatDateShort } from '@/lib/utils';
 import Link from 'next/link';
 import { Shield, AlertTriangle } from 'lucide-react';
+import { RiskBadge } from '@/components/ui/RiskBadge';
+import { SchoolCard } from '@/components/ui/SchoolCard';
+
+export function SafeguardingList({ items }) {
+  return (
+    <div className="space-y-4">
+      {items.map((item) => (
+        <SchoolCard key={item.id}>
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-lg font-semibold">{item.title}</h3>
+              <p className="text-school-text-secondary mt-1">{item.description}</p>
+            </div>
+            <RiskBadge level={item.riskLevel} />
+          </div>
+        </SchoolCard>
+      ))}
+    </div>
+  );
+}
 
 export async function SafeguardingList({
   tenantId,
