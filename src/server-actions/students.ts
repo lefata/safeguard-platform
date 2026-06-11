@@ -28,7 +28,7 @@ function buildParentContacts(values: Record<string, string>): any[] {
   for (let i = 1; i <= 2; i++) {
     const name = values[`parent${i}Name`] || '';
     const email = values[`parent${i}Email`] || '';
-    const phone = values[`parent${iPhone}`] || '';
+    const phone = values[`parent${i}Phone`] || '';
     const relation = values[`parent${i}Relation`] || '';
     if (name || email || phone) {
       contacts.push({
