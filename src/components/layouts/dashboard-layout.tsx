@@ -35,20 +35,6 @@ import {
 import { cn } from "@/lib/utils";
 
 const mainNavigation = [
-  { title: "Admin", href: "/admin", icon: Settings, roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: FileText,
-    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "DSL", "DEPUTY_DSL", "PRINCIPAL", "READ_ONLY_AUDITOR"],
-  },
-  {
-    title: "Admin",
-    href: "/admin",
-    icon: Settings,
-    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"],   // only these roles see the admin link
-  },
-];
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["*"] },
   {
     title: "Safeguarding",
@@ -86,6 +72,19 @@ const mainNavigation = [
     href: "/admin",
     icon: Settings,
     roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"],
+  },
+  { title: "Admin", href: "/admin", icon: Settings, roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
+  {
+    title: "Reports",
+    href: "/reports",
+    icon: FileText,
+    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "DSL", "DEPUTY_DSL", "PRINCIPAL", "READ_ONLY_AUDITOR"],
+  },
+  {
+    title: "Admin",
+    href: "/admin",
+    icon: Settings,
+    roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"],   // only these roles see the admin link
   },
 ];
 
