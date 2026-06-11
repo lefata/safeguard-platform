@@ -4,6 +4,7 @@ import React, { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { DashboardLayout } from '@/components/layouts/dashboard-layout';
 
 interface DashboardLayoutProps {
   children: ReactNode;
