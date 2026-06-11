@@ -1,0 +1,74 @@
+/* ========== SCHOOL COLOR PALETTE UTILITIES ========== */
+/* Extended color utilities for consistent theming */
+
+/* Primary Blue Shades */
+.bg-school-primary { background-color: var(--school-primary); }
+.bg-school-primary-light { background-color: var(--school-primary-light); }
+.bg-school-primary-lighter { background-color: var(--school-primary-lighter); }
+.bg-school-primary-lightest { background-color: var(--school-primary-lightest); }
+
+.text-school-primary { color: var(--school-primary); }
+.text-school-primary-light { color: var(--school-primary-light); }
+.text-school-primary-lighter { color: var(--school-primary-lighter); }
+
+.border-school-primary { border-color: var(--school-primary); }
+
+/* Gold Accent Shades */
+.bg-school-gold { background-color: var(--school-accent-gold); }
+.bg-school-gold-light { background-color: var(--school-accent-gold-light); }
+.text-school-gold { color: var(--school-accent-gold); }
+
+/* Emerald Accent Shades */
+.bg-school-emerald { background-color: var(--school-accent-emerald); }
+.bg-school-emerald-light { background-color: var(--school-accent-emerald-light); }
+.text-school-emerald { color: var(--school-accent-emerald); }
+
+/* Background Variants */
+.bg-school-surface { background-color: var(--school-surface); }
+.bg-school-overlay { background-color: var(--school-overlay); }
+.bg-school-secondary { background-color: var(--school-bg-secondary); }
+
+/* Text Color Variants */
+.text-school-primary { color: var(--school-text-primary); }
+.text-school-secondary { color: var(--school-text-secondary); }
+.text-school-muted { color: var(--school-text-muted); }
+.text-school-light { color: var(--school-text-light); }
+
+/* Border Variants */
+.border-school-light { border-color: var(--school-border-light); }
+.border-school-medium { border-color: var(--school-border-medium); }
+.border-school-strong { border-color: var(--school-border-strong); }
+
+/* Shadow Variants */
+.shadow-xs { box-shadow: var(--shadow-xs); }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+.shadow-school-card { box-shadow: var(--shadow-school-card); }
+.shadow-school-hover { box-shadow: var(--shadow-school-hover); }
+.shadow-school-elevated { box-shadow: var(--shadow-school-elevated); }
+
+/* Ring Variants for Focus States */
+.ring-school-primary { box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); }
+.ring-school-accent { box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
+
+/* Hover State Utilities */
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-grow:hover {
+  transform: scale(1.02);
+}
+
+.hover-darken:hover {
+  filter: brightness(0.95);
+}
+
+/* Focus States */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: var(--shadow-md), 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
