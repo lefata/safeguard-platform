@@ -33,6 +33,37 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { SchoolCard } from '@/components/ui/SchoolCard';
+import { RiskBadge } from '@/components/ui/RiskBadge';
+
+export default function Dashboard() {
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-school-primary to-school-primary-light text-white p-8 rounded-lg">
+        <h1 className="text-3xl font-bold">Safeguarding Dashboard</h1>
+        <p className="mt-2 opacity-90">Monitor and manage student wellbeing</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <SchoolCard>
+          <div className="text-center">
+            <p className="text-sm text-school-text-muted uppercase">Low Risk</p>
+            <p className="text-3xl font-bold text-school-emerald mt-2">234</p>
+          </div>
+        </SchoolCard>
+        {/* More stat cards */}
+      </div>
+
+      {/* Recent Cases */}
+      <SchoolCard>
+        <h2 className="text-2xl font-bold mb-4">Recent Cases</h2>
+        {/* Case list here */}
+      </SchoolCard>
+    </div>
+  );
+}
 
 const navigation = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["*"] },
