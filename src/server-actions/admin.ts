@@ -155,3 +155,30 @@ export async function getUsersForTenant(tenantId: string) {
     orderBy: { createdAt: 'desc' },
   });
 }
+
+export async function resetUserPassword(userId: string, newPassword: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  const userRole = (session.user as any).role;
+  const userTenantId = (session.user as any).tenantId;
+
+  if (userRole !== 'SUPER_ADMIN' && userRole !== 'SCHOOL_ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error('User not found');
+
+  // School admin can only reset passwords within their own school
+  if (userRole === 'SCHOOL_ADMIN' && user.tenantId !== userTenantId) {
+    throw new Error('You can only manage users in your own school.');
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  });
+
+  revalidatePath('/admin');
+}
