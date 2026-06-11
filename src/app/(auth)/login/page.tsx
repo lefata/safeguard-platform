@@ -8,6 +8,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, GraduationCap } from "lucide-react";
+export default function LoginPage() {
+  return (
+    <div className="min-h-screen bg-school-primary flex items-center justify-center p-4">
+      <div className="card w-full max-w-md">
+        <h1 className="text-2xl font-bold text-school-primary mb-6">Login</h1>
+        
+        <div className="input-group mb-4">
+          <label>Email</label>
+          <input type="email" placeholder="your@school.edu" />
+        </div>
+        
+        <div className="input-group mb-6">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••" />
+        </div>
+        
+        <button className="btn btn-primary w-full">Sign In</button>
+      </div>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
