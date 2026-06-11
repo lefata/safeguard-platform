@@ -86,6 +86,19 @@ export async function getAllTenants() {
   });
 }
 
+// Get a single tenant by ID (allowed for SUPER_ADMIN or the tenant's SCHOOL_ADMIN)
+export async function getTenantById(tenantId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
+  const userRole = (session.user as any).role;
+  const userTenantId = (session.user as any).tenantId;
+  if (userRole !== 'SUPER_ADMIN' && (userRole !== 'SCHOOL_ADMIN' || userTenantId !== tenantId)) {
+    throw new Error('Unauthorized');
+  }
+  return prisma.tenant.findUnique({ where: { id: tenantId } });
+}
+
+// Update school settings (logo, colours, address, etc.)
 export async function updateSchoolSettings(data: {
   tenantId: string;
   name?: string;
@@ -96,8 +109,8 @@ export async function updateSchoolSettings(data: {
   timezone?: string;
   locale?: string;
 }) {
-  const session = await requireSuperAdmin(); // actually allow both SUPER_ADMIN and SCHOOL_ADMIN
-  // We'll allow if role is SUPER_ADMIN, or if the user is SCHOOL_ADMIN of that tenant.
+  const session = await auth();
+  if (!session?.user) throw new Error('Not authenticated');
   const userRole = (session.user as any).role;
   const userTenantId = (session.user as any).tenantId;
 
@@ -124,8 +137,4 @@ export async function updateSchoolSettings(data: {
   revalidatePath('/admin');
   return updated;
 }
-export async function getCurrentTenantSettings() {
-  const session = await requireSuperAdmin(); // but we'll allow any authenticated user? Actually just school admin and super admin.
-  const userTenantId = (session.user as any).tenantId;
-  return prisma.tenant.findUnique({ where: { id: userTenantId } });
-}
+
