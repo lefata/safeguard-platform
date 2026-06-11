@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+
 import {
   Select,
   SelectContent,
@@ -31,6 +32,7 @@ import {
   getTenantById,
   updateSchoolSettings,
   getUsersForTenant,
+  resetUserPassword,
 } from "@/server-actions/admin";
 import { School, UserPlus, Loader2, Palette } from "lucide-react";
 import { formatDateShort } from "@/lib/utils";
@@ -257,6 +259,23 @@ export default function AdminPage() {
     }
   };
 
+  const handleResetPassword = async (userId: string) => {
+  if (!newPassword || newPassword.length < 6) {
+    toast.error("Password must be at least 6 characters.");
+    return;
+  }
+  setResettingPassword(true);
+  try {
+    await resetUserPassword(userId, newPassword);
+    toast.success("Password reset successfully.");
+    setResetUserId(null);
+    setNewPassword("");
+  } catch (error: any) {
+    toast.error(error.message);
+  } finally {
+    setResettingPassword(false);
+  }
+};
   if (!session) return null;
 
   return (
@@ -581,30 +600,53 @@ export default function AdminPage() {
             <div className="text-center text-muted-foreground py-4">No users found.</div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="text-right">Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name || "—"}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{user.role.replace(/_/g, " ")}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right text-xs text-muted-foreground">
-                      {formatDateShort(user.createdAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Email</TableHead>
+      <TableHead>Role</TableHead>
+      <TableHead className="text-right">Created</TableHead>
+      <TableHead className="text-right">Actions</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {users.map((user) => (
+      <TableRow key={user.id}>
+        <TableCell>{user.name || "—"}</TableCell>
+        <TableCell>{user.email}</TableCell>
+        <TableCell>
+          <Badge variant="outline">{user.role.replace(/_/g, " ")}</Badge>
+        </TableCell>
+        <TableCell className="text-right text-xs text-muted-foreground">
+          {formatDateShort(user.createdAt)}
+        </TableCell>
+        <TableCell className="text-right">
+          {resetUserId === user.id ? (
+            <div className="flex items-center gap-2">
+              <Input
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-28 h-8 text-xs"
+              />
+              <Button size="sm" onClick={() => handleResetPassword(user.id)} disabled={resettingPassword}>
+                Save
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setResetUserId(null)}>
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => { setResetUserId(user.id); setNewPassword(""); }}>
+              Reset Password
+            </Button>
           )}
+        </TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
         </CardContent>
       </Card>
     </div>
