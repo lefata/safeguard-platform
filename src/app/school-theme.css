@@ -1,5 +1,5 @@
 /* ============================================================
-   SCHOOL THEME – Professional look for K‑12 safeguarding
+   SAFEGUARD SCHOOL THEME – overrides ShadCN/Tailwind defaults
    ============================================================ */
 
 /* ---------- Global ---------- */
@@ -10,17 +10,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Cards ---------- */
+/* ---------- Cards (login, dashboard panels, etc.) ---------- */
 div.rounded-2xl.bg-card,
 div[class*="rounded-2xl"][class*="bg-card"],
-.card,
 .shadow-school-card,
 [class*="shadow-school-card"] {
   background-color: #ffffff !important;
   border-radius: 16px !important;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 24px rgba(0, 0, 0, 0.04) !important;
   border: none !important;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 /* ---------- Buttons ---------- */
@@ -55,14 +54,12 @@ input, textarea, select {
   background-color: #ffffff !important;
 }
 
-/* ---------- Sidebar ---------- */
-/* Sidebar container */
-aside, .sidebar, div.hidden.lg\:fixed.lg\:inset-y-0.lg\:flex.lg\:w-64.lg\:flex-col {
+/* ---------- Sidebar (if still vertical) ---------- */
+aside, .sidebar, div.hidden.lg\\:fixed.lg\\:inset-y-0.lg\\:flex.lg\\:w-64.lg\\:flex-col {
   background-color: #ffffff !important;
   border-right: 1px solid #e5e7eb !important;
 }
 
-/* Sidebar links */
 nav a, nav button, .sidebar-link {
   color: #4b5563 !important;
   border-radius: 12px !important;
@@ -85,12 +82,7 @@ nav a[class*="bg-school-50"], nav a[class*="text-school-700"] {
   box-shadow: none !important;
 }
 
-/* Sidebar logo */
-div.h-9.w-9.rounded-xl {
-  background-image: linear-gradient(to bottom right, #2563eb, #1e40af) !important;
-}
-
-/* ---------- Header ---------- */
+/* ---------- Header / Top Navbar ---------- */
 header {
   background-color: rgba(255, 255, 255, 0.85) !important;
   backdrop-filter: blur(10px) !important;
@@ -99,9 +91,6 @@ header {
 }
 
 /* ---------- Dropdowns ---------- */
-[data-radix-popper-content-wrapper] {
-  z-index: 50 !important;
-}
 div[role="menu"], .dropdown-content {
   background: #ffffff !important;
   border: 1px solid #e5e7eb !important;
@@ -128,15 +117,14 @@ div[role="menuitem"].text-red-600:hover {
   background-color: #fef2f2 !important;
 }
 
-/* ---------- Dashboard Stats Cards ---------- */
-.stat-card {
-  border-radius: 16px !important;
-  background: white !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
-  transition: box-shadow 0.2s ease;
-}
-.stat-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+/* ---------- Badges (risk levels, statuses) ---------- */
+span[class*="bg-risk"], span.badge {
+  border-radius: 9999px !important;
+  padding: 2px 10px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 /* ---------- Tables ---------- */
@@ -161,16 +149,6 @@ tr:hover td {
   background-color: #f9fafb !important;
 }
 
-/* ---------- Badges (risk levels, statuses) ---------- */
-span[class*="bg-risk"], span.badge {
-  border-radius: 9999px !important;
-  padding: 2px 10px !important;
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
 /* ---------- Tabs (settings page) ---------- */
 div[role="tablist"] {
   background: #f1f5f9 !important;
@@ -189,9 +167,15 @@ button[role="tab"][data-state="active"] {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
 }
 
-/* ---------- Gradient backgrounds (login, empty pages) ---------- */
+/* ---------- Gradient backgrounds ---------- */
 div.bg-gradient-to-br {
   background-image: linear-gradient(to bottom right, #eff6ff, #ffffff, #dbeafe) !important;
+}
+
+/* ---------- Logo / Brand area ---------- */
+div.h-9.w-9.rounded-xl,
+div.h-14.w-14.rounded-2xl {
+  background-image: linear-gradient(to bottom right, #2563eb, #1e40af) !important;
 }
 
 /* ---------- Animations ---------- */
@@ -201,46 +185,4 @@ div.bg-gradient-to-br {
 }
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out !important;
-}
-/* ---------- Top Navbar specific ---------- */
-header nav a {
-  color: #4b5563 !important;
-  font-weight: 500 !important;
-  padding: 8px 12px !important;
-  border-radius: 12px !important;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-header nav a:hover {
-  background-color: #f1f5f9 !important;
-  color: #1e293b !important;
-}
-header nav a.active,
-header nav a.bg-school-50 {
-  background-color: #eff6ff !important;
-  color: #2563eb !important;
-}
-
-/* Main content area – wider and centered */
-main.max-w-screen-2xl {
-  padding-top: 24px;
-  padding-bottom: 24px;
-}
-
-/* Make dropdowns and popovers have higher z-index */
-[data-radix-popper-content-wrapper] {
-  z-index: 60 !important;
-}
-
-/* Improve mobile menu */
-.mobile-menu-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  color: #4b5563;
-}
-.mobile-menu-link.active {
-  background-color: #eff6ff;
-  color: #2563eb;
 }
