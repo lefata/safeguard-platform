@@ -33,6 +33,7 @@ model Tenant {
   notificationSettings  Json      @default("{}")
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  address               String?
 
   users                 User[]
   students              Student[]
