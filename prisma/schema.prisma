@@ -19,6 +19,7 @@ model Tenant {
   name                  String
   slug                  String    @unique
   logo                  String?
+  address               String?
   primaryColor          String    @default("#2563eb")
   secondaryColor        String    @default("#7c3aed")
   timezone              String    @default("UTC")
@@ -33,7 +34,7 @@ model Tenant {
   notificationSettings  Json      @default("{}")
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  address               String?
+  
 
   users                 User[]
   students              Student[]
