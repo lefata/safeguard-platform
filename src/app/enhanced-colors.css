@@ -1,74 +1,195 @@
-/* ========== SCHOOL COLOR PALETTE UTILITIES ========== */
-/* Extended color utilities for consistent theming */
+/* ========== MODERN SCHOOL COLOR SYSTEM ========== 
+   Professional Navy & Gold Theme Utilities
+   Sleek, Academic, Trustworthy Design Language
+========================================== */
 
-/* Primary Blue Shades */
-.bg-school-primary { background-color: var(--school-primary); }
-.bg-school-primary-light { background-color: var(--school-primary-light); }
-.bg-school-primary-lighter { background-color: var(--school-primary-lighter); }
-.bg-school-primary-lightest { background-color: var(--school-primary-lightest); }
+/* ===== PRIMARY NAVY SHADES ===== */
+.bg-school-navy { background-color: hsl(var(--school-navy)); }
+.bg-school-navy-light { background-color: hsl(var(--school-navy-light)); }
+.text-school-navy { color: hsl(var(--school-navy)); }
+.text-school-navy-light { color: hsl(var(--school-navy-light)); }
+.border-school-navy { border-color: hsl(var(--school-navy)); }
 
-.text-school-primary { color: var(--school-primary); }
-.text-school-primary-light { color: var(--school-primary-light); }
-.text-school-primary-lighter { color: var(--school-primary-lighter); }
+/* ===== GOLD ACCENT SHADES ===== */
+.bg-school-gold { background-color: hsl(var(--school-gold)); }
+.bg-school-gold-light { background-color: hsl(var(--school-gold-light)); }
+.text-school-gold { color: hsl(var(--school-gold)); }
+.text-school-gold-light { color: hsl(var(--school-gold-light)); }
+.border-school-gold { border-color: hsl(var(--school-gold)); }
 
-.border-school-primary { border-color: var(--school-primary); }
+/* ===== SEMANTIC COLORS ===== */
+.bg-school-success { background-color: hsl(var(--school-success)); }
+.bg-school-warning { background-color: hsl(var(--school-warning)); }
+.bg-school-info { background-color: hsl(var(--school-info)); }
+.bg-school-danger { background-color: hsl(var(--school-danger)); }
 
-/* Gold Accent Shades */
-.bg-school-gold { background-color: var(--school-accent-gold); }
-.bg-school-gold-light { background-color: var(--school-accent-gold-light); }
-.text-school-gold { color: var(--school-accent-gold); }
+.text-school-success { color: hsl(var(--school-success)); }
+.text-school-warning { color: hsl(var(--school-warning)); }
+.text-school-info { color: hsl(var(--school-info)); }
+.text-school-danger { color: hsl(var(--school-danger)); }
 
-/* Emerald Accent Shades */
-.bg-school-emerald { background-color: var(--school-accent-emerald); }
-.bg-school-emerald-light { background-color: var(--school-accent-emerald-light); }
-.text-school-emerald { color: var(--school-accent-emerald); }
+/* ===== SURFACE COLORS ===== */
+.bg-school-surface-primary { background-color: hsl(var(--surface-primary)); }
+.bg-school-surface-secondary { background-color: hsl(var(--surface-secondary)); }
+.bg-school-surface-elevated { background-color: hsl(var(--surface-elevated)); }
 
-/* Background Variants */
-.bg-school-surface { background-color: var(--school-surface); }
-.bg-school-overlay { background-color: var(--school-overlay); }
-.bg-school-secondary { background-color: var(--school-bg-secondary); }
+/* ===== ADVANCED SHADOW SYSTEM ===== */
+.shadow-school-subtle {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
+              0 1px 1px 0 rgba(0, 0, 0, 0.02);
+}
 
-/* Text Color Variants */
-.text-school-primary { color: var(--school-text-primary); }
-.text-school-secondary { color: var(--school-text-secondary); }
-.text-school-muted { color: var(--school-text-muted); }
-.text-school-light { color: var(--school-text-light); }
+.shadow-school-card {
+  box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.05),
+              0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 10px 15px -3px rgba(30, 58, 138, 0.08);
+}
 
-/* Border Variants */
-.border-school-light { border-color: var(--school-border-light); }
-.border-school-medium { border-color: var(--school-border-medium); }
-.border-school-strong { border-color: var(--school-border-strong); }
+.shadow-school-hover {
+  box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.08),
+              0 8px 12px -2px rgba(0, 0, 0, 0.08),
+              0 20px 25px -5px rgba(30, 58, 138, 0.1);
+}
 
-/* Shadow Variants */
-.shadow-xs { box-shadow: var(--shadow-xs); }
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-.shadow-xl { box-shadow: var(--shadow-xl); }
-.shadow-school-card { box-shadow: var(--shadow-school-card); }
-.shadow-school-hover { box-shadow: var(--shadow-school-hover); }
-.shadow-school-elevated { box-shadow: var(--shadow-school-elevated); }
+.shadow-school-elevated {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05),
+              0 12px 24px -4px rgba(0, 0, 0, 0.08),
+              0 32px 64px -12px rgba(30, 58, 138, 0.15);
+}
 
-/* Ring Variants for Focus States */
-.ring-school-primary { box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); }
-.ring-school-accent { box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
+.shadow-school-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
+              0 0 40px rgba(59, 130, 246, 0.15);
+}
 
-/* Hover State Utilities */
+.shadow-school-gold {
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+/* ===== RING/FOCUS STATES ===== */
+.ring-school-focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.ring-school-gold {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25);
+}
+
+/* ===== INTERACTIVE HOVER EFFECTS ===== */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-school-hover);
+}
+
+.hover-lift-subtle {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift-subtle:hover {
+  transform: translateY(-2px);
+}
+
+.hover-grow {
+  transition: transform 0.2s ease;
 }
 
 .hover-grow:hover {
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
 
-.hover-darken:hover {
-  filter: brightness(0.95);
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Focus States */
-.focus-ring:focus {
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* ===== GRADIENT UTILITIES ===== */
+.bg-gradient-navy {
+  background: linear-gradient(135deg, 
+    hsl(var(--school-navy)) 0%, 
+    hsl(var(--school-navy-light)) 100%);
+}
+
+.bg-gradient-gold {
+  background: linear-gradient(135deg, 
+    hsl(var(--school-gold)) 0%, 
+    hsl(var(--school-gold-light)) 100%);
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(135deg, 
+    hsl(222 47% 11%) 0%,
+    hsl(221 83% 53%) 50%,
+    hsl(210 40% 98%) 100%);
+}
+
+/* ===== GLASS MORPHISM ===== */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-panel-dark {
+  background: rgba(30, 58, 138, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== TEXT GRADIENTS ===== */
+.text-gradient-gold {
+  background: linear-gradient(135deg, 
+    hsl(var(--school-gold)) 0%, 
+    hsl(var(--school-gold-light)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-navy {
+  background: linear-gradient(135deg, 
+    hsl(var(--school-navy)) 0%, 
+    hsl(var(--school-navy-light)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== BORDER ANIMATIONS ===== */
+.border-animated {
+  position: relative;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* ===== FOCUS STATES ===== */
+.focus-ring-glow:focus {
   outline: none;
-  box-shadow: var(--shadow-md), 0 0 0 3px rgba(30, 64, 175, 0.1);
+  box-shadow: 0 0 0 2px white,
+              0 0 0 4px hsl(var(--school-navy-light)),
+              0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.focus-ring-gold:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px white,
+              0 0 0 4px hsl(var(--school-gold)),
+              0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+/* ===== SMOOTH TRANSITIONS ===== */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-bounce {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

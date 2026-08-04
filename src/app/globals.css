@@ -1,61 +1,130 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @import './school-theme.css';
 @import './enhanced-colors.css';
 
-  @layer base {
-    :root {
-      --background: 0 0% 98%; /* neutral-50 (#fafafa) */
-      --foreground: 0 0% 14.9%; /* neutral-800 (#262626) */
-      --card: 0 0% 96.1%; /* neutral-100 (#f3f4f6) */
-      --card-foreground: 0 0% 25.1%; /* neutral-700 (#404040) */
-      --popover: 0 0% 96.1%; /* neutral-100 (#f5f5f5) */
-      --popover-foreground: 0 0% 14.9%; /* neutral-800 (#262626) */
-      --primary: 217.2 91.2% 59.8%; /* blue-500 (#3b82f6) */
-      --primary-foreground: 213.8 100% 96.9%; /* blue-50 (#eff6ff) */
-      --secondary: 0 0% 89.8%; /* neutral-200 (#e5e5e5) */
-      --secondary-foreground: 0 0% 25.1%; /* neutral-700 (#404040) */
-      --accent: 330.4 81.2% 60.4%; /* pink-500 (#ec4899) */
-      --accent-foreground: 327.3 73.3% 97.1%; /* pink-50 (#fdf2f8) */
-      --muted: 0 0% 96.1%; /* neutral-100 (#f5f5f5) */
-      --muted-foreground: 0 0% 32.2%; /* neutral-600 (#525252) */
-      --destructive: 0 73.7% 41.8%; /* red-700 (#b91c1c) */
-      --destructive-foreground: 0 85.7% 97.3%; /* red-50 (#fef2f2) */
-      --border: 0 0% 89.8%; /* neutral-200 (#e5e5e5) */
-      --input: 0 0% 83.1%; /* neutral-300 (#d4d4d4) */
-      --ring: 198.6 88.7% 48.4%; /* sky-500 (#0ea5e9) */
-    };
-    .dark {
-      --background: 0 0% 14.9%; /* neutral-800 (#1a1a1a) */
-      --foreground: 0 0% 83.1%; /* neutral-300 (#d4d4d4) */
-      --card: 0 0% 25.1%; /* neutral-700 (#404040) */
-      --card-foreground: 0 0% 96.1%; /* neutral-100 (#f5f5f5) */
-      --popover: 0 0% 25.1%; /* neutral-700 (#404040) */
-      --popover-foreground: 0 0% 83.1%; /* neutral-300 (#d4d4d4) */
-      --primary: 173.4 80.4% 40%; /* teal-500 (#14b8a6) */
-      --primary-foreground: 166.2 76.5% 96.7%; /* teal-50 (#f0fdfa) */
-      --secondary: 0 0% 25.1%; /* neutral-700 (#404040) */
-      --secondary-foreground: 0 0% 83.1%; /* neutral-300 (#d4d4d4) */
-      --accent: 270.7 91% 65.1%; /* purple-500 (#a855f7) */
-      --accent-foreground: 270 100% 98%; /* purple-50 (#faf5ff) */
-      --muted: 0 0% 32.2%; /* neutral-600 (#525252) */
-      --muted-foreground: 0 0% 89.8%; /* neutral-200 (#e5e5e5) */
-      --destructive: 0 73.7% 41.8%; /* red-700 (#b91c1c) */
-      --destructive-foreground: 0 85.7% 97.3%; /* red-50 (#fef2f2) */
-      --border: 0 0% 32.2%; /* neutral-600 (#525252) */
-      --input: 0 0% 45.1%; /* neutral-500 (#737373) */
-      --ring: 173.4 80.4% 40%; /* teal-500 (#14b8a6) */
-    }
+@layer base {
+  :root {
+    /* Modern School Theme - Professional Navy & Gold */
+    --background: 210 40% 98%; /* Crisp light background */
+    --foreground: 222 47% 11%; /* Deep navy text */
+    
+    --card: 0 0% 100%; /* Pure white cards */
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 221 83% 53%; /* Vibrant royal blue */
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 210 40% 96%; /* Soft blue-gray */
+    --secondary-foreground: 222 47% 11%;
+    
+    --accent: 45 93% 47%; /* Rich academic gold */
+    --accent-foreground: 222 47% 11%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%; /* Sophisticated gray */
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%; /* Subtle borders */
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    
+    --radius: 0.75rem;
   }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  .dark {
+    --background: 222 47% 11%; /* Deep navy background */
+    --foreground: 210 40% 96%;
+    
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 96%;
+    
+    --popover: 222 47% 14%;
+    --popover-foreground: 210 40% 96%;
+    
+    --primary: 213 94% 61%; /* Bright blue for dark mode */
+    --primary-foreground: 222 47% 11%;
+    
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    
+    --accent: 45 93% 47%; /* Gold accent remains */
+    --accent-foreground: 222 47% 11%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 96%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 213 94% 61%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Professional gradient backgrounds */
+  .bg-gradient-school {
+    @apply bg-gradient-to-br from-school-50 via-white to-school-100;
+  }
+  
+  .bg-gradient-school-dark {
+    @apply bg-gradient-to-br from-school-950 via-school-900 to-school-800;
+  }
+  
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-school-950/80 backdrop-blur-md border border-school-800/20;
+  }
+  
+  /* Professional card styling */
+  .card-professional {
+    @apply bg-white rounded-2xl shadow-school-card border border-school-border 
+           transition-all duration-300 hover:shadow-school-hover;
+  }
+  
+  /* Elegant button styles */
+  .btn-primary-elegant {
+    @apply bg-gradient-to-r from-school-600 to-school-700 
+           hover:from-school-700 hover:to-school-800
+           text-white font-medium rounded-xl
+           shadow-lg shadow-school-500/25
+           transition-all duration-300
+           hover:scale-[1.02] active:scale-[0.98];
+  }
+  
+  /* Subtle hover lift effect */
+  .hover-lift-subtle {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
 }
