@@ -4,11 +4,15 @@ import "./globals.css";
 import "./school-theme.css";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Safeguard Platform",
-  description: "K-12 Student Safeguarding & Wellbeing Management",
+  title: "SafeGuard | Modern School Platform",
+  description: "Professional K-12 Student Safeguarding & Wellbeing Management System",
 };
 
 export default function RootLayout({
@@ -17,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -43,20 +43,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-school-50 via-white to-school-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-school-card border-0 animate-fade-in">
-        <CardHeader className="space-y-1 text-center">
+    <div className="min-h-screen bg-gradient-school flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-school-200/30 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-school-300/20 rounded-full blur-3xl" />
+      </div>
+      
+      <Card className="w-full max-w-md shadow-school-elevated border-0 animate-fade-in relative z-10 backdrop-blur-sm bg-white/95">
+        <CardHeader className="space-y-4 text-center pb-2">
           <div className="flex justify-center">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-school-500 to-school-700 flex items-center justify-center shadow-lg">
-              <Shield className="h-8 w-8 text-white" />
+            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-school-600 to-school-800 flex items-center justify-center shadow-xl ring-4 ring-school-100">
+              <Shield className="h-9 w-9 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Safeguard Platform
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Sign in to your school account
-          </CardDescription>
+          <div>
+            <CardTitle className="text-3xl font-bold tracking-tight text-school-900">
+              Welcome Back
+            </CardTitle>
+            <CardDescription className="text-base mt-2">
+              Sign in to access your school dashboard
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           {error && (
@@ -67,7 +75,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-school-900">Email Address</Label>
               <Input
                 id="email"
                 type="email"
@@ -75,11 +83,11 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-11"
+                className="h-12 rounded-xl border-school-border focus:border-school-500 focus:ring-2 focus:ring-school-500/20 transition-all"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium text-school-900">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -88,32 +96,42 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="h-11"
+                className="h-12 rounded-xl border-school-border focus:border-school-500 focus:ring-2 focus:ring-school-500/20 transition-all"
               />
             </div>
             <Button
               type="submit"
-              className="w-full h-11 bg-gradient-to-r from-school-600 to-school-700 hover:from-school-700 hover:to-school-800 text-white font-medium"
+              className="w-full h-12 rounded-xl bg-gradient-to-r from-school-600 to-school-700 hover:from-school-700 hover:to-school-800 text-white font-semibold shadow-lg shadow-school-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
               disabled={loading}
             >
-              {loading ? "Signing in…" : "Sign in with Email"}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Signing in...
+                </span>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
+              <div className="w-full border-t border-school-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-white px-3 text-muted-foreground font-medium">
-                or continue with
+                Or continue with
               </span>
             </div>
           </div>
 
           <Button
             variant="outline"
-            className="w-full h-11 border-2 border-school-100 hover:bg-school-50 transition-colors"
+            className="w-full h-12 rounded-xl border-2 border-school-200 hover:bg-school-50 hover:border-school-300 transition-all duration-200"
             onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
           >
             <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
@@ -137,10 +155,11 @@ export default function LoginPage() {
             Google Workspace
           </Button>
         </CardContent>
-        <CardFooter className="justify-center border-t pt-6">
-          <p className="text-xs text-muted-foreground">
-            Secured by <span className="font-semibold text-school-600">Safeguard</span> ·{' '}
-            {new Date().getFullYear()}
+        <CardFooter className="justify-center border-t border-school-border pt-6">
+          <p className="text-xs text-muted-foreground text-center">
+            Secured by <span className="font-semibold text-school-600">Safeguard Platform</span>
+            <br />
+            © {new Date().getFullYear()} All rights reserved
           </p>
         </CardFooter>
       </Card>
