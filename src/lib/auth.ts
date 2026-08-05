@@ -44,7 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Missing email or password');
+          return null;
         }
 
         // 1. Find the user by email (must be active)
@@ -55,13 +55,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         });
 
-        if (!user) {
-          throw new Error('Invalid email or password');
-        }
-
-        // 2. Verify the password (assuming password is stored with bcrypt)
-        if (!user.password) {
-          throw new Error('Account is not set up for password login');
+        // Deliberately return null for failed credentials so Auth.js treats this as
+        // a normal sign-in rejection rather than logging a callback-route error.
+        if (!user?.password) {
+          return null;
         }
 
         const isValid = await bcrypt.compare(
@@ -70,7 +67,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!isValid) {
-          throw new Error('Invalid email or password');
+          return null;
         }
 
         // 3. Return the user object – make sure it matches the augmented User type
