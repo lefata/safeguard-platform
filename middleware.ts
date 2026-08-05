@@ -54,10 +54,14 @@ export default auth((req) => {
   // Role-based access control
   const userRole = session.user.role as string
 
-  for (const [path, allowedRoles] of Object.entries(rolePathMap)) {
-    if (pathname.startsWith(path) && !allowedRoles.includes(userRole)) {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
-    }
+  // Match the most specific route first: /safeguarding/all must not inherit
+  // the broader permissions assigned to /safeguarding.
+  const protectedPath = Object.keys(rolePathMap)
+    .sort((a, b) => b.length - a.length)
+    .find((path) => pathname === path || pathname.startsWith(`${path}/`))
+
+  if (protectedPath && !rolePathMap[protectedPath].includes(userRole)) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
   // Add tenant context header

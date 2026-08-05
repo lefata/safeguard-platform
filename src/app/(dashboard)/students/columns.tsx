@@ -5,8 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import Link from "next/link";
-import { RiskBadge } from '@/components/ui/RiskBadge';
-import { StatusIndicator } from '@/components/ui/StatusIndicator';
 
 type Student = {
   id: string;
@@ -17,8 +15,6 @@ type Student = {
   homeroom: string | null;
   house: string | null;
   enrollmentStatus: string;
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  status: string;
 };
 
 export const columns: ColumnDef<Student>[] = [
@@ -55,23 +51,6 @@ export const columns: ColumnDef<Student>[] = [
       <Badge variant={row.getValue("enrollmentStatus") === "ENROLLED" ? "success" : "warning"}>
         {row.getValue("enrollmentStatus")}
       </Badge>
-    ),
-  },
-  {
-    accessorKey: "riskLevel",
-    header: "Risk Level",
-    cell: ({ row }) => (
-      <RiskBadge level={row.getValue("riskLevel")} />
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <StatusIndicator 
-        level={row.getValue("status")} 
-        size="sm"
-      />
     ),
   },
   {

@@ -5,6 +5,27 @@ import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+
+const assignableRoles = [
+  'SCHOOL_ADMIN',
+  'DSL',
+  'DEPUTY_DSL',
+  'COUNSELOR',
+  'PRINCIPAL',
+  'TEACHER',
+  'NURSE',
+  'STUDENT_SUPPORT',
+  'READ_ONLY_AUDITOR',
+] as const;
+
+const createUserSchema = z.object({
+  tenantId: z.string().cuid(),
+  email: z.string().trim().email().max(254).transform((email) => email.toLowerCase()),
+  name: z.string().trim().min(1).max(120),
+  role: z.enum(assignableRoles),
+  password: z.string().min(12).max(128),
+});
 
 // Authorise: SUPER_ADMIN always, SCHOOL_ADMIN only if tenant matches
 async function checkAdminAccess(tenantId?: string) {
@@ -59,32 +80,36 @@ export async function createUserForSchool(data: {
   role: string;
   password: string;
 }) {
+  const input = createUserSchema.parse(data);
   // Allow SUPER_ADMIN or SCHOOL_ADMIN (restricted to own tenant)
-  await checkAdminAccess(data.tenantId);
+  const { role: actorRole } = await checkAdminAccess(input.tenantId);
+  if (actorRole === 'SCHOOL_ADMIN' && input.role === 'SCHOOL_ADMIN') {
+    throw new Error('School administrators cannot create other school administrators.');
+  }
 
-  const tenant = await prisma.tenant.findUnique({ where: { id: data.tenantId } });
+  const tenant = await prisma.tenant.findUnique({ where: { id: input.tenantId } });
   if (!tenant) throw new Error('School not found.');
 
   const existing = await prisma.user.findFirst({
-    where: { tenantId: data.tenantId, email: data.email },
+    where: { tenantId: input.tenantId, email: input.email },
   });
   if (existing) throw new Error('A user with this email already exists in this school.');
 
-  const hashedPassword = await bcrypt.hash(data.password, 12);
+  const hashedPassword = await bcrypt.hash(input.password, 12);
 
   const user = await prisma.user.create({
     data: {
-      tenantId: data.tenantId,
-      email: data.email,
-      name: data.name,
-      role: data.role,
+      tenantId: input.tenantId,
+      email: input.email,
+      name: input.name,
+      role: input.role,
       password: hashedPassword,
       isActive: true,
     },
   });
 
   revalidatePath('/admin');
-  return user;
+  return { id: user.id, email: user.email, name: user.name, role: user.role };
 }
 
 export async function getAllTenants() {
@@ -157,6 +182,11 @@ export async function getUsersForTenant(tenantId: string) {
 }
 
 export async function resetUserPassword(userId: string, newPassword: string) {
+  const input = z.object({
+    userId: z.string().cuid(),
+    password: z.string().min(12).max(128),
+  }).parse({ userId, password: newPassword });
+
   const session = await auth();
   if (!session?.user) throw new Error('Not authenticated');
   const userRole = (session.user as any).role;
@@ -166,7 +196,7 @@ export async function resetUserPassword(userId: string, newPassword: string) {
     throw new Error('Unauthorized');
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({ where: { id: input.userId } });
   if (!user) throw new Error('User not found');
 
   // School admin can only reset passwords within their own school
@@ -174,9 +204,9 @@ export async function resetUserPassword(userId: string, newPassword: string) {
     throw new Error('You can only manage users in your own school.');
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  const hashedPassword = await bcrypt.hash(input.password, 12);
   await prisma.user.update({
-    where: { id: userId },
+    where: { id: input.userId },
     data: { password: hashedPassword },
   });
 

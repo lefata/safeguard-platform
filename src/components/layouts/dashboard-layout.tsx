@@ -13,10 +13,10 @@ interface DashboardLayoutProps {
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "📊" },
-  { label: "Students", href: "/dashboard/students", icon: "🎓" },
-  { label: "Safeguarding", href: "/dashboard/safeguarding", icon: "🛡️" },
-  { label: "Reports", href: "/dashboard/reports", icon: "📋" },
-  { label: "Settings", href: "/dashboard/settings", icon: "⚙️" },
+  { label: "Students", href: "/students", icon: "🎓" },
+  { label: "Safeguarding", href: "/safeguarding", icon: "🛡️" },
+  { label: "Reports", href: "/reports", icon: "📋" },
+  { label: "Settings", href: "/settings", icon: "⚙️" },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
