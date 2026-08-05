@@ -33,7 +33,7 @@ interface SafeguardingListProps {
   concerns: SafeguardingConcern[];
 }
 
-export function SafeguardingList({ tenantId, userRole, userId }: SafeguardingListProps) {
+export function SafeguardingList({ concerns }: SafeguardingListProps) {
   if (!concerns || concerns.length === 0) {
     return (
       <Card className="shadow-school-card border-0">
