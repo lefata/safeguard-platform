@@ -6,11 +6,8 @@ import { CaseTimeline } from "@/components/safeguarding/case-timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ConcernDetailPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
-
 // Mock function to fetch concern by ID - replace with real data fetching
 async function getConcernById(id: string) {
   // fetch the concern including timeline entries
@@ -44,7 +41,7 @@ async function getConcernById(id: string) {
 }
 
 export default async function ConcernDetailPage({ params }: ConcernDetailPageProps) {
-  const concern = await getConcernById(params.id);
+  const { id } = await params;
 
   return (
     <div>
