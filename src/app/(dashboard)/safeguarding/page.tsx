@@ -2,7 +2,7 @@
 import { Suspense } from 'react'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import { DashboardLayout } from '@/components/layouts/dashboard-layout'
+import DashboardLayout from '@/components/layouts/dashboard-layout'
 import { SafeguardingList } from '@/components/safeguarding/safeguarding-list'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
