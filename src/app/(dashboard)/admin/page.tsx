@@ -156,7 +156,7 @@ export default function AdminPage() {
     setLoadingUsers(true);
     try {
       const data = await getUsersForTenant(tenantId);
-      setUsers(data.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })));
+      setUsers(data.map((u: any) => ({ ...u, createdAt: u.createdAt.toISOString() })));
     } catch (error: any) {
       toast.error("Could not load users: " + error.message);
     } finally {
