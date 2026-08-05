@@ -1,6 +1,4 @@
 // src/app/(dashboard)/safeguarding/[id]/page.tsx
-"use client";
-
 import React from "react";
 import { CaseTimeline } from "@/components/safeguarding/case-timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +8,9 @@ interface ConcernDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+// Mock function to fetch concern by ID - replace with real data fetching
 async function getConcernById(id: string) {
+  // fetch the concern including timeline entries
   return {
     id,
     title: "Example Concern",
@@ -20,7 +20,7 @@ async function getConcernById(id: string) {
         id: "1",
         title: "Initial report",
         date: "2024-06-01",
-        riskLevel: "medium",
+        riskLevel: "medium" as const, // Explicitly typed as literal
         action: "Reported by teacher",
         description: "Concern reported due to behavior",
         createdAt: new Date("2024-06-01T10:00:00Z"),
@@ -30,7 +30,7 @@ async function getConcernById(id: string) {
         id: "2",
         title: "Follow-up",
         date: "2024-06-05",
-        riskLevel: "high",
+        riskLevel: "high" as const, // Explicitly typed as literal
         action: "Meeting with parents",
         description: "Discussed intervention plan",
         createdAt: new Date("2024-06-05T14:00:00Z"),
@@ -43,8 +43,13 @@ async function getConcernById(id: string) {
 export default async function ConcernDetailPage({ params }: ConcernDetailPageProps) {
   const { id } = await params;
   
+  // Fetch the concern data
   const concern = await getConcernById(id);
   
+  if (!concern) {
+    notFound();
+  }
+
   return (
     <div className="space-y-6">
       <Card>
