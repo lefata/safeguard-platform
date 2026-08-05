@@ -12,7 +12,7 @@ interface SafeguardingConcern {
   id: string;
   title: string;
   description?: string;
-  riskLevel: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  riskLevel: string;
   student: {
     firstName: string;
     lastName: string;
