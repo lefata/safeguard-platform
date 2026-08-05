@@ -25,11 +25,15 @@ interface SafeguardingConcern {
   status: string;
 }
 
+// Update the interface at the top of the file
 interface SafeguardingListProps {
+  tenantId: string;
+  userRole: string;
+  userId: string;
   concerns: SafeguardingConcern[];
 }
 
-export function SafeguardingList({ concerns }: SafeguardingListProps) {
+export function SafeguardingList({ tenantId, userRole, userId }: SafeguardingListProps) {
   if (!concerns || concerns.length === 0) {
     return (
       <Card className="shadow-school-card border-0">
