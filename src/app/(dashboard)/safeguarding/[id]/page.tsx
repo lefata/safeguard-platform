@@ -5,14 +5,12 @@ import React from "react";
 import { CaseTimeline } from "@/components/safeguarding/case-timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from 'next/navigation';
-// Import your data fetching function
 
 interface ConcernDetailPageProps {
   params: Promise<{ id: string }>;
 }
-// Mock function to fetch concern by ID - replace with real data fetching
+
 async function getConcernById(id: string) {
-  // fetch the concern including timeline entries
   return {
     id,
     title: "Example Concern",
@@ -42,22 +40,19 @@ async function getConcernById(id: string) {
   };
 }
 
-// src/app/(dashboard)/safeguarding/[id]/page.tsx
-
-// Make sure you're fetching the concern data before using it
 export default async function ConcernDetailPage({ params }: ConcernDetailPageProps) {
   const { id } = await params;
   
-  // Fetch the concern data - THIS IS WHAT'S MISSING
-  const concern = await getConcernById(id); // or however you fetch concerns
+  const concern = await getConcernById(id);
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{concern.title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p>{concern.description}</p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>{concern.title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{concern.description}</p>
         </CardContent>
       </Card>
 
@@ -68,6 +63,7 @@ export default async function ConcernDetailPage({ params }: ConcernDetailPagePro
         <CardContent>
           <CaseTimeline entries={concern.timeline} />
         </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }
