@@ -256,8 +256,8 @@ export default function AdminPage() {
   };
 
   const handleResetPassword = async (userId: string) => {
-    if (!newPassword || newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters.");
+    if (!newPassword || newPassword.length < 12) {
+      toast.error("Password must be at least 12 characters.");
       return;
     }
     setResettingPassword(true);
@@ -415,7 +415,7 @@ export default function AdminPage() {
                 <Input
                   id="userPassword"
                   type="password"
-                  placeholder="Min. 6 characters"
+                  placeholder="Min. 12 characters"
                   value={userPassword}
                   onChange={(e) => setUserPassword(e.target.value)}
                   required
