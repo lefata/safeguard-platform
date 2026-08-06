@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss"
 
 const config: Config = {
@@ -22,6 +21,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-fraunces)", "Georgia", "serif"],
+      },
       colors: {
         school: {
           50: "#f0f7ff",
@@ -134,4 +137,3 @@ const config: Config = {
 }
 
 export default config
-
