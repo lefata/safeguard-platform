@@ -8,7 +8,7 @@
 @layer base {
   :root {
     /* Modern School Theme - Professional Navy & Gold */
-    --background: 210 40% 98%; /* Crisp light background */
+    --background: 40 33% 98%; /* Warm parchment-white background */
     --foreground: 222 47% 11%; /* Deep navy text */
     
     --card: 0 0% 100%; /* Pure white cards */
@@ -81,10 +81,17 @@
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
+
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Editorial display type for headings — gives the platform an institutional,
+     prospectus-like voice instead of generic SaaS sans-everywhere. */
+  h1, h2, h3 {
+    @apply font-display;
+    letter-spacing: -0.01em;
   }
 }
 
