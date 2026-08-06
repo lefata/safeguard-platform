@@ -117,6 +117,28 @@
 }
 
 @layer utilities {
+  /* ===== SIGNATURE GRAPHIC: Crest Lattice ===== */
+  /* A subtle repeating outline of the platform's shield mark — the one
+     recurring graphic motif used across auth screens, sidebar and empty
+     states, instead of stock illustrations or generic blobs. */
+  .bg-crest-lattice {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.07' stroke-width='1.4'%3E%3Cpath d='M60 14 L92 26 V56 C92 78 78 94 60 104 C42 94 28 78 28 56 V26 Z'/%3E%3Ccircle cx='60' cy='58' r='10'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 120px 120px;
+  }
+
+  .bg-crest-lattice-navy {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23152850' stroke-opacity='0.05' stroke-width='1.4'%3E%3Cpath d='M60 14 L92 26 V56 C92 78 78 94 60 104 C42 94 28 78 28 56 V26 Z'/%3E%3Ccircle cx='60' cy='58' r='10'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 120px 120px;
+  }
+
+  /* Fine dot-grid texture, for large quiet surfaces */
+  .bg-dot-grid {
+    background-image: radial-gradient(rgba(21, 40, 80, 0.08) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
   /* Text Gradients */
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r;
@@ -132,4 +154,3 @@
     @apply hover:-translate-y-1 hover:shadow-lg transition-all duration-300;
   }
 }
-
