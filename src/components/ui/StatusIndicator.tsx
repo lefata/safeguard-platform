@@ -9,9 +9,10 @@ interface StatusIndicatorProps {
   level: 'low' | 'medium' | 'high' | 'critical';
   label?: string;
   size?: 'sm' | 'md' | 'lg';
+  className?: string;
 }
 
-export function StatusIndicator({ level, label, size = 'md' }: StatusIndicatorProps) {
+export function StatusIndicator({ level, label, size = 'md', className = '' }: StatusIndicatorProps) {
   const styles = getRiskBadgeStyles(level);
   
   const sizeClasses = {
@@ -22,7 +23,7 @@ export function StatusIndicator({ level, label, size = 'md' }: StatusIndicatorPr
 
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-md font-semibold border ${sizeClasses[size]}`}
+      className={`inline-flex items-center gap-2 rounded-md font-semibold border ${sizeClasses[size]} ${className}`}
       style={{
         backgroundColor: styles.bg,
         color: styles.text,
