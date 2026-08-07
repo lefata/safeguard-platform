@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Shield } from "lucide-react";
+import { Shield, ShieldCheck, HeartHandshake, ClipboardCheck } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,32 +43,68 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-school flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-school-200/30 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-school-300/20 rounded-full blur-3xl" />
-      </div>
-      
-      <Card className="w-full max-w-md shadow-school-elevated border-0 animate-fade-in relative z-10 backdrop-blur-sm bg-white/95">
-        <CardHeader className="space-y-4 text-center pb-2">
-          <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-school-600 to-school-800 flex items-center justify-center shadow-xl ring-4 ring-school-100">
-              <Shield className="h-9 w-9 text-white" />
-            </div>
+    <div className="min-h-screen flex bg-background">
+      {/* ===== Left: Brand / Graphic Panel ===== */}
+      <div className="hidden lg:flex lg:w-[46%] xl:w-[42%] relative flex-col justify-between overflow-hidden bg-gradient-to-br from-school-950 via-school-900 to-school-800 text-white px-12 py-12">
+        {/* Signature crest-lattice graphic */}
+        <div className="absolute inset-0 bg-crest-lattice pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-school-gold/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-school-500/20 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-school-gold to-school-gold-light flex items-center justify-center shadow-lg">
+            <Shield className="h-6 w-6 text-school-900" />
           </div>
           <div>
-            <CardTitle className="text-3xl font-bold tracking-tight text-school-900">
-              Welcome Back
-            </CardTitle>
-            <CardDescription className="text-base mt-2">
-              Sign in to access your school dashboard
-            </CardDescription>
+            <p className="text-lg font-display font-semibold tracking-tight leading-none">SafeGuard</p>
+            <p className="text-xs text-school-300 mt-0.5">School Platform</p>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+
+        <div className="relative z-10 max-w-md">
+          <p className="font-display text-3xl xl:text-4xl leading-tight font-medium">
+            Every student, seen. Every concern, followed through.
+          </p>
+          <p className="mt-4 text-school-200 text-sm leading-relaxed">
+            One place for pastoral teams to log concerns, track wellbeing, and
+            keep every safeguarding case moving — with a clear record at every step.
+          </p>
+
+          <div className="mt-10 space-y-4">
+            <FeaturePoint icon={ShieldCheck} label="Secure, audit-logged case records" />
+            <FeaturePoint icon={HeartHandshake} label="Whole-school wellbeing visibility" />
+            <FeaturePoint icon={ClipboardCheck} label="Built for DSLs and pastoral teams" />
+          </div>
+        </div>
+
+        <p className="relative z-10 text-xs text-school-400">
+          © {new Date().getFullYear()} Safeguard Platform · Trusted by pastoral teams
+        </p>
+      </div>
+
+      {/* ===== Right: Sign-in Form ===== */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 relative">
+        <div className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none lg:hidden" />
+
+        <div className="w-full max-w-sm relative z-10 animate-fade-in">
+          {/* Mobile-only brand mark */}
+          <div className="flex lg:hidden justify-center mb-8">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-school-600 to-school-800 flex items-center justify-center shadow-xl ring-4 ring-school-100">
+              <Shield className="h-8 w-8 text-white" />
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h1 className="font-display text-3xl font-medium tracking-tight text-school-900">
+              Welcome back
+            </h1>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Sign in to access your school dashboard
+            </p>
+          </div>
+
           {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4 border border-red-100">
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-5 border border-red-100">
               {error}
             </div>
           )}
@@ -87,7 +123,10 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-school-900">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-sm font-medium text-school-900">Password</Label>
+                <a href="#" className="text-xs font-medium text-school-600 hover:text-school-700">Forgot password?</a>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -123,7 +162,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-school-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-3 text-muted-foreground font-medium">
+              <span className="bg-background px-3 text-muted-foreground font-medium">
                 Or continue with
               </span>
             </div>
@@ -154,15 +193,29 @@ export default function LoginPage() {
             </svg>
             Google Workspace
           </Button>
-        </CardContent>
-        <CardFooter className="justify-center border-t border-school-border pt-6">
-          <p className="text-xs text-muted-foreground text-center">
+
+          <p className="text-xs text-muted-foreground text-center mt-8">
             Secured by <span className="font-semibold text-school-600">Safeguard Platform</span>
-            <br />
-            © {new Date().getFullYear()} All rights reserved
           </p>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeaturePoint({
+  icon: Icon,
+  label,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+        <Icon className="h-4 w-4 text-school-gold" />
+      </div>
+      <p className="text-sm text-school-100">{label}</p>
     </div>
   );
 }
