@@ -15,7 +15,6 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   display: "swap",
   axes: ["opsz", "SOFT", "WONK"],
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
