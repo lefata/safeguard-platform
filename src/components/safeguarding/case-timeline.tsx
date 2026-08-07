@@ -30,8 +30,8 @@ export function CaseTimeline({ entries }: CaseTimelineProps) {
       {entries.map((entry) => (
         <div key={entry.id} className="flex gap-4">
           <div className="flex flex-col items-center">
-            <div className="w-3 h-3 rounded-full bg-school-primary" />
-            <div className="h-12 w-0.5 bg-school-border-light" />
+            <div className="w-3 h-3 rounded-full bg-school-600" />
+            <div className="h-12 w-0.5 bg-school-200" />
           </div>
           <div className="pb-4">
             {entry.title && <p className="font-semibold text-school-text-primary">{entry.title}</p>}
