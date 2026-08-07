@@ -15,7 +15,7 @@ export default async function SafeguardingPage() {
   }
 
   // Fetch concerns from the database
-  const concerns = await prisma.concern.findMany({
+  const concerns = await prisma.safeguardingConcern.findMany({
     where: {
       tenantId: session.user.tenantId,
     },
@@ -23,8 +23,8 @@ export default async function SafeguardingPage() {
       createdAt: 'desc',
     },
     include: {
-      actor: true,
-      timelineEntries: true,
+      student: { select: { firstName: true, lastName: true, grade: true } },
+      category: { select: { name: true } },
     },
   });
 
